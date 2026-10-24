@@ -121,11 +121,11 @@
 <text class="m c0" x="640.0" y="313" text-anchor="middle" font-size="22" fill="#56d4dd">› rewriting its own core…  (T2 · gate G0–G3)</text>
 <text class="m c1" x="640.0" y="313" text-anchor="middle" font-size="22" fill="#3fb950">✓ hot-swapped mid-task · same conversation · gen 42</text>
 <text class="m c2" x="640.0" y="313" text-anchor="middle" font-size="22" fill="#d29922">› rewriting again…  gen 43</text>
-<text class="m c3" x="640.0" y="313" text-anchor="middle" font-size="22" fill="#f85149">✗ harm sentinel: error spike (H7, z=4.1)</text>
+<text class="m c3" x="640.0" y="313" text-anchor="middle" font-size="22" fill="#f85149">✗ harm sentinel: error spike (H9)</text>
 <text class="m c4" x="640.0" y="313" text-anchor="middle" font-size="22" fill="#e6b450">↺ Root rolled the whole system back → gen 42</text>
 <text x="640.0" y="347" text-anchor="middle" class="m" font-size="14" fill="#5c6773">every pixel gets replaced. it is still INIT.<tspan class="cur" fill="#3fb950"> ▌</tspan></text>
 <rect x="0" y="358" width="1280" height="62" fill="#120d02"/>
 <rect class="glow" x="0" y="348" width="1280" height="72" fill="#e6b450" opacity="0"/>
 <line x1="0" y1="358" x2="1280" y2="358" stroke="#e6b450" stroke-width="3"/>
-<text x="640.0" y="396" text-anchor="middle" class="m" font-size="17" fill="#e6b450" letter-spacing="2">ROOT · keys · sandbox · signed lineage · rollback — the one thing it can never rewrite</text>
+<text x="640.0" y="396" text-anchor="middle" class="m" font-size="17" fill="#e6b450" letter-spacing="2">ROOT · off switch · record · rollback — the one thing it can never rewrite</text>
 </svg>
