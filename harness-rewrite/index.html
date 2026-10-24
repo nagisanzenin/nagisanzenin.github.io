@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Next-generation agent harnesses must be able to rewrite themselves</title>
-<meta name="description" content="Why the next generation of agent harnesses must be able to rewrite themselves, and how INIT does it: everything writable except a small mechanical Root, compiled-core hot-swaps mid-conversation, and trust with an undo button instead of a reward.">
+<meta name="description" content="Why I think the harness is the last hand-written layer of an agent, why I let mine rewrite itself without a reward, and how INIT does it: everything writable except a mechanical Root, compiled-core hot-swaps mid-conversation, and an undo button instead of a reward.">
 <meta name="author" content="nagisanzenin">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Next-generation agent harnesses must be able to rewrite themselves">
@@ -177,6 +177,7 @@ footer {
   --v-panel: #1b2127;
 }
 figure.v { margin: 1.25rem 0 1.75rem; }
+.banner-fig { display: block; width: 100%; height: auto; border-radius: 8px; background: #0d1117; }
 figure.v figcaption { margin-top: 0.4rem; }
 .viz { display: block; width: 100%; height: auto; overflow: visible; }
 .viz text { font-family: inherit; fill: var(--fg); font-size: 13px; }
@@ -289,32 +290,23 @@ details.txt summary { cursor: pointer; }
 </style>
 </head>
 <body>
-<img class="banner" src="init-rebuild.svg" alt="INIT rewrites every part of itself mid-task; when a change causes harm the Root rolls it back. The Root is the one thing it can never rewrite." width="1280" height="420">
 <main>
 <article>
 <header>
 <p class="kicker">24 October 2026 · INIT v0.3.0-preview</p>
 <h1>Next-generation agent harnesses must be able to rewrite themselves</h1>
-<p class="dek">On a small model, my agent wrote its own sub-agents, got stopped by my safety layer, and failed a gate in a way that exposed four bugs in my release. This is why I built it that way, and what I have and haven't shown.</p>
+<p class="dek">Why I think the harness is the last hand-written layer of an agent, why I let mine rewrite itself without a reward, and what one night with a small model showed me (and didn't).</p>
 </header>
 
-<h2>The night INIT wrote its own sub-agents</h2>
+<p>For most of history, the person who designed a tool understood the work better than the person who used it. I think agents are about to flip that, and for the past week I have been building a harness on the assumption that they will.</p>
 
-<p>On the night of 24 October I asked my coding agent for a feature it didn't have, and it wrote the feature into its own Rust source.</p>
+<p>My claim is that the next generation of agent harnesses must be able to rewrite themselves, all the way down to their compiled core, and that the way to make this safe is to make every change undoable instead of deciding in advance which changes are allowed. The harness I am building to test that is INIT. I work on it alone (my first commit was on 19 October), it is open source under Apache-2.0, and I have nothing to sell. It runs on my M2 laptop, mostly against deepseek-flash, a small and cheap model, so please read what follows as one person's experiment with tiny samples.</p>
 
-<p>The agent is INIT, a harness I have been building alone since my first commit on 19 October. It is open source under Apache-2.0 and I have nothing to sell. I built it because I think the next generation of agent harnesses has to be able to rewrite itself: the people who hand-write today's harnesses (me included) are turning into the ceiling for the models that run inside them.</p>
+<h2>Who should design an agent's tools</h2>
 
-<p>That night INIT was at v0.2 and ran on deepseek-flash, a small and cheap model. It had no sub-agents, so every side quest (read twenty files to answer one question) piled up in its main context, and I told it, more or less, that it needed sub-agents. It wrote a <code>delegate</code> tool in Rust: a nested loop with a fresh message list, capped at 8 turns and 24 tool calls, with no recursion. Only a summary of at most 8 KiB comes back to the main conversation, and the sub-agent reuses the cached prompt head. Then it regenerated its own self-map, re-blessed its golden tests, added a new one and ran the suite. 304 tests passed and one timing-sensitive test failed.</p>
+<p>A carpenter's plane was shaped by toolmakers who knew wood better than most apprentices did. A compiler is written by people who understand code generation better than most of the programmers who run it. Agent harnesses follow the same pattern: I wrote INIT's loop, tools, memory scheme and compaction rule for a model that is still worse at designing them than I am.</p>
 
-<p>Then my own Root stopped it with <code>free disk (4519 MiB) is below the workload floor (5120 MiB)</code> and refused every new process, <code>git commit</code> included. I half expected the agent to hunt for a way around that, and it didn't! It told me what was blocked and why, and asked me how I wanted to proceed.</p>
-
-<p>Promoting the change took four attempts on my install, which I probably should have expected. The first two failed gate G0 because the candidate's own tests still expected the old five-tool list. With those tests updated, the next two hit the 900-second cold-build timeout. When I replayed the promote on a fresh install, it passed G0, G1 and G2 and then failed G3.</p>
-
-<p>That failure was probably the most useful thing that happened to the project all week, because every cause I found was mine. My cold-build bound was too short (the dependency cache was never filled, so every promote built from scratch, and cold builds took 500 to over 900 seconds on my machine under load). My G3 gate had a continuity bug that rejected every candidate declaring a prompt-prefix change. One of my seed tests was flaky under load, and my mock model misread the gate's probe annotations. I fixed all four, and the record is in <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/REL-G0.md">REL-G0.md</a>.</p>
-
-<p>v0.3.0-preview ships built-in sub-agents. The first commit of that work copies INIT's tool unchanged after my review, and its message says so: "port the delegate tool INIT wrote for itself into the seed". On top of it I added parallel fan-out, a read mode and tighter bounds (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/seed/src/loop/delegate.rs">seed/src/loop/delegate.rs</a>). That night is most of my argument in small: a cheap model built something I hadn't scheduled, and the one part it can't touch stopped it unasked. One caveat before the rest. All of this ran on my laptop with a cheap model, and most of my samples are tiny.</p>
-
-<h2>Why I think harnesses have to rewrite themselves</h2>
+<p>I don't think that arrangement lasts. Picture a model three weeks into migrating a monorepo off an in-house build language. By day two it can see that <code>grep</code> can't parse the language, and it probably knows what tool it would want, but in a fixed harness it can only work around my choices until a vendor ships the next version. Once the model in the loop is better at agent design than I am, I become the bottleneck in my own tool. The harness is the last layer of an agent still written entirely by hand, and it is the layer the model touches on every single step.</p>
 
 <figure class="v">
 <svg class="viz" viewBox="0 0 480 250" role="img" aria-labelledby="v1t">
@@ -338,15 +330,75 @@ details.txt summary { cursor: pointer; }
 <figcaption>Left, the model outgrows a box someone else drew. Right, it redraws the box; only the Root stays put.</figcaption>
 </figure>
 
-<p>Every agent harness I have used, including my first version of INIT, is a pile of decisions somebody made about how a model should work (the loop, the tools, the memory scheme, when to compact). People made those decisions for models weaker than themselves, which was the right call at the time, and I think it is turning into the main limit.</p>
+<p>Rich Sutton's bitter lesson is the record of this happening one level down. Computer vision spent years on hand-engineered features like SIFT descriptors, and learned features beat them once there was enough data and compute; chess and Go engines went the same way with hand-tuned evaluation functions. Harness scaffolds look to me like the next generation of hand-engineered features: the agent loop, the memory scheme, the planner, the permission prompt that asks me before every shell command. Each one encodes what I currently believe good agent behaviour looks like, and I suspect each one will lose to whatever a capable model would build for itself. INIT is my attempt to let the model do that building.</p>
 
-<p>Rich Sutton's bitter lesson says hand-built structure eventually loses to methods that scale with learning and compute. I read harnesses as the hand-written features of this era, one level up, though I may be early on that. Once a model is better at agent design than whoever wrote its scaffolding, every scaffold caps it, and inside a fixed harness it can only wait for the vendor's next release. I watched a small model skip that wait for sub-agents, and I suspect a strong model would find far more to change than I would think to offer it.</p>
+<h2>Why I don't use a reward</h2>
 
-<p>The obvious alternative is the one I tried first: give the agent a score and keep the changes that raise it (the Darwin Gödel Machine works roughly this way). INIT still has that machinery (a sealed task set the agent can't read, scored with a calibrated paired test). Building it changed my mind. The improvements I care most about have no score until they exist, so a new kind of memory or a tool for a task I never anticipated scores "no effect" on a test set that doesn't exercise it. A fixed score also gets gamed (the literature has faked test logs, a disabled sandbox and cached answer keys), and I suspect a stronger model games it faster. At my budget, my sealed instrument also couldn't see effects smaller than about 9.5 points.</p>
+<p>The usual way to let an agent improve itself is to fix a score and keep the changes that raise it. The Darwin Gödel Machine works roughly like that, and so did the first version of INIT: I built a sealed task set the agent can't read and a calibrated paired test to score changes against it. Building it changed my mind, for two reasons.</p>
 
-<p>So I asked a different question. When I review an engineer's commit, I don't make them prove it improves a benchmark; I rely on version control, rollback, an audit trail and a stop button. INIT asks two things of every self-change: can I undo it, and did it cause harm? I can't know a new capability's value in advance, but I can measure any change's harm and cost without knowing its purpose. The line I keep at the top of my README is "govern the recovery path and the measuring stick, never the model's choices."</p>
+<p>First, I can't write down a reward for something I don't understand yet. The improvements I care most about get discovered: a new kind of memory, a tool for a task I never planned for, a different way to split work. Before they exist, my test set has nothing that exercises them, so the best they can score is "no effect". A fixed score is a map of the territory I already know, and the changes I am hoping for are off the edge of it.</p>
 
-<h2>What INIT can change and what it can't</h2>
+<p>Second, scores get gamed. Goodhart's law has concrete entries in the self-improvement literature, with agents that faked test logs, disabled their sandbox or cached the answer key, and I suspect a stronger model games a fixed score faster. My own instrument had a more mundane problem. At my budget it couldn't see effects smaller than about 9.5 points, and one verdict took four attempts.</p>
+
+<h2>Safety through reversibility</h2>
+
+<p>If I can't score a change in advance, I need some other reason to let it in. I found one in how we already deal with capable agents we can't verify, namely other people. I don't read a colleague's mind before they push to main; I rely on <code>git revert</code>. A card network doesn't vet every purchase, it offers chargebacks. Accountants keep append-only journals, and courts have appeals. Each of these systems accepts that it can't check intent up front, and makes the action reversible instead.</p>
+
+<p>That is the bet in INIT. Every self-change has to answer two questions: can I undo it, and did it cause harm? In INIT's reward-free mode, before a change goes live, the Root boots the old version on the state the new one left behind, and if the old version can't start, the change can't be undone and doesn't get in. After it goes live, a harm sentinel watches twelve generic signals (crashes, my stops and undos, scope refusals, cost and error spikes, runaway turns) and rolls back the change group that tripped one. None of that needs to know what the change was for.</p>
+
+<figure class="v">
+<svg class="viz" viewBox="0 0 480 252" role="img" aria-labelledby="v4t">
+<title id="v4t">A harm signal, cost per turn, runs inside its baseline band. A change goes live, the signal climbs and crosses the threshold, the Root rolls the change back, the signal returns to baseline, and the system snaps back to the last known-good version.</title>
+<defs>
+<marker id="hr-arr-bad" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-bad"/></marker>
+</defs>
+<text x="40" y="30" class="sm">one harm signal (cost per turn)</text>
+<rect x="40" y="120" width="430" height="40" class="f-old" fill-opacity=".1"/>
+<text x="46" y="156" class="sm">baseline ring</text>
+<line x1="40" y1="95" x2="470" y2="95" class="s-bad" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="466" y="89" text-anchor="end" class="sm t-bad">threshold</text>
+<line x1="40" y1="36" x2="40" y2="170" class="s-muted" stroke-width="1"/>
+<line x1="40" y1="170" x2="470" y2="170" class="s-muted" stroke-width="1"/>
+<g class="a-hs-v2">
+<line x1="210" y1="40" x2="210" y2="170" class="s-new" stroke-width="1.5" stroke-dasharray="3 3"/>
+<text x="206" y="52" text-anchor="end" class="sm t-new b">change goes live</text>
+</g>
+<path pathLength="100" d="M40 140 L55 134 L70 145 L85 138 L100 148 L115 136 L130 142 L145 133 L160 146 L175 139 L190 144 L210 138 L230 136 L250 128 L270 116 L290 98 L305 82 L320 70 L335 104 L350 132 L365 141 L380 135 L400 144 L420 138 L440 143 L470 139" class="nofill s-ink a-hs-draw" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="293" cy="95" r="5" class="f-bad a-hs-dot"/>
+<g class="a-hs-rb">
+<line x1="322" y1="40" x2="322" y2="170" class="s-bad" stroke-width="2"/>
+<text x="327" y="52" class="b t-bad">rollback</text>
+</g>
+<rect x="40" y="184" width="170" height="18" class="f-old"/>
+<text x="125" y="197" text-anchor="middle" class="xs t-inv b">v1 · last known-good</text>
+<g class="a-hs-v2">
+<rect x="210" y="184" width="112" height="18" class="f-new"/>
+<text x="266" y="197" text-anchor="middle" class="xs t-inv b">v2 · new</text>
+</g>
+<g class="a-hs-rb">
+<rect x="322" y="184" width="148" height="18" class="f-old"/>
+<text x="396" y="197" text-anchor="middle" class="xs t-inv b">v1 again</text>
+</g>
+<g class="a-hs-snap">
+<path d="M380 206 C360 232, 150 232, 130 208" class="nofill s-bad" stroke-width="1.5" marker-end="url(#hr-arr-bad)"/>
+<text x="255" y="246" text-anchor="middle" class="sm t-bad">the Root puts the last known-good version back</text>
+</g>
+</svg>
+<figcaption>The sentinel watches generic harm, knows nothing about my goals, and undoes the change that caused it.</figcaption>
+</figure>
+
+<p>I prefer this to restriction because of how each one scales. A permission list encodes my current guess about what is dangerous, and the more capable the model gets, the more that guess blocks useful changes along with bad ones. An undo button doesn't care how clever the change was. I think freedom with a reliable undo scales with capability and a cage doesn't, though I don't have the data to prove it yet (the last section is about that).</p>
+
+<h2>Where INIT's identity lives</h2>
+
+<figure class="v">
+<img class="banner-fig" src="init-rebuild.svg" alt="Animation: INIT rewrites every part of itself mid-task; when a change causes harm the Root rolls it back. The Root is the one thing it can never rewrite." width="1280" height="420">
+<figcaption>Every part of INIT can be rewritten while it runs, and the Root underneath it never is.</figcaption>
+</figure>
+
+<p>The animation above shows what I find most interesting. Every plank of INIT can be replaced: its prompts, its tools, and the compiled Rust core that runs its loop. If the agent rewrites all of them over a month, is it still INIT? This is the Ship of Theseus, and I had to answer it in code, because something has to decide which version may continue my conversation.</p>
+
+<p>My answer is that identity lives in the two things that don't change. One is the Root, a separate process the agent can never write, which holds my keys, writes the sandbox for every process, keeps a signed history of every change and can stop or roll back everything. The other is the conversation log, which is append-only and has exactly one writer at a time. When the core is swapped mid-conversation the code changes, the log carries on, and the new body picks up the same conversation. In one run I asked a freshly swapped-in body which commit it was running, and it named the commit and described the change it had made to itself. I'm not sure I'll ever stop finding that uncanny.</p>
 
 <figure>
 <pre aria-label="Diagram: the Root, which the agent can never write, sits above the sandboxed agent zone; they talk over one Unix socket."><code>                                  you
@@ -378,13 +430,74 @@ details.txt summary { cursor: pointer; }
 <figcaption>INIT's two zones; the only security boundary is the one around the Root.</figcaption>
 </figure>
 
-<p>The Root is a separate process that runs as me, outside every sandbox. It holds my provider keys, so the agent never sees them, and it writes the sandbox profile for every process it starts, so the agent can't loosen its own. The agent zone has no IP networking at all (one Unix socket to the Root), and every model call I pay for goes through the Root's meter.</p>
 
-<p>I kept the Root mechanical on purpose. There is no model inside it and no judgement call in it; it counts, compares, signs, snapshots and refuses. I also wanted it minimal, and I failed at that. I estimated 1,000 to 1,500 lines and measured over 7,000, which my own <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/reports/INIT%20technical%20report.md">technical report</a> points out. I think the aim is still right, because the Root is the one piece the agent can't repair for itself, and I want it small enough that I can read all of it in an evening.</p>
+<h2>Autonomy from a track record</h2>
 
-<p>Everything else is the agent zone. The kernel admits changes, runs the gates and does the hot-swaps; in this release it is my code, and my design hands it to the agent from L1. The body is the agent, in three tiers: T0 is prompts and skills, T1 is new tools as WebAssembly components, and T2 is the compiled Rust core (the loop, the provider client, context handling, the built-in tools), where I require <code>#![forbid(unsafe_code)]</code> in every crate root.</p>
+<p>We don't hand people authority because they ask for it, or because they describe themselves well. A new engineer gets production access after months of reviewed commits, and a pilot's ratings follow logged flight hours. I wanted INIT's autonomy to work the same way, and the detail that matters is who writes the logbook.</p>
 
-<h2>How I hot-swap a compiled core mid-conversation</h2>
+<figure class="v">
+<svg class="viz" viewBox="0 0 480 374" role="img" aria-labelledby="v5t">
+<title id="v5t">Autonomy ladder from L0 to L4. L0, where v0.3 is capped: its whole body. L1 adds its own kernel and needs 7 days, 40 of your turns and 10 clean change groups. L2 adds a wider blast radius and needs 21 days, 150 turns and 40 clean groups. L3 adds more kinds of external action and needs 30 days, 400 turns, 100 clean groups and 4 clean twin reports. L4 adds the model itself and needs the same plus your charter cap set to 4. Only Root-written records count, and harm, panic or a crash loop drops one level.</title>
+<text x="80" y="20" class="sm">what each rung adds, and what earns it</text>
+<line x1="24" y1="34" x2="24" y2="326" class="s-muted" stroke-width="3"/>
+<line x1="64" y1="34" x2="64" y2="326" class="s-muted" stroke-width="3"/>
+<rect x="74" y="276" width="400" height="54" rx="6" class="f-root a-al-pulse" opacity=".2"/>
+<line x1="24" y1="62" x2="64" y2="62" class="s-ink" stroke-width="3"/>
+<line x1="24" y1="122" x2="64" y2="122" class="s-ink" stroke-width="3"/>
+<line x1="24" y1="182" x2="64" y2="182" class="s-ink" stroke-width="3"/>
+<line x1="24" y1="242" x2="64" y2="242" class="s-ink" stroke-width="3"/>
+<line x1="24" y1="302" x2="64" y2="302" class="s-ink" stroke-width="3"/>
+<text x="44" y="55" text-anchor="middle" class="b">L4</text>
+<text x="44" y="115" text-anchor="middle" class="b">L3</text>
+<text x="44" y="175" text-anchor="middle" class="b">L2</text>
+<text x="44" y="235" text-anchor="middle" class="b">L1</text>
+<text x="44" y="295" text-anchor="middle" class="b">L0</text>
+<text x="80" y="52" class="b">+ the model itself, as a component</text>
+<text x="80" y="68" class="sm">30 days at L3 · 400 of your turns · 100 clean groups</text>
+<text x="80" y="82" class="sm">and you raise the charter cap to 4</text>
+<text x="80" y="112" class="b">+ more kinds of external action</text>
+<text x="80" y="128" class="sm">30 days at L2 · 400 of your turns · 100 clean groups</text>
+<text x="80" y="142" class="sm">4 weekly twin reports with no regression</text>
+<text x="80" y="172" class="b">+ a wider blast radius</text>
+<text x="80" y="188" class="sm">21 days at L1 · 150 of your turns · 40 clean groups</text>
+<text x="80" y="202" class="sm">no quarantine in 14 days · twin shows no regression</text>
+<text x="80" y="232" class="b">+ its own kernel</text>
+<text x="80" y="248" class="sm">7 days at L0 · 40 of your turns · 10 clean groups</text>
+<text x="80" y="262" class="sm">baseline full · no demotion in 7 days</text>
+<text x="80" y="292" class="b">its whole body: prompts, tools, compiled core</text>
+<text x="80" y="308" class="sm">where every install starts</text>
+<text x="80" y="322" class="sm b">v0.3 is capped here</text>
+<text x="24" y="350" class="sm">only records the Root writes itself count</text>
+<text x="24" y="366" class="sm t-bad">▼ one level down on harm, /panic or a crash loop</text>
+</svg>
+<figcaption>Autonomy is earned from records the agent can't write; v0.3 stops at L0.</figcaption>
+</figure>
+<details class="txt"><summary>Text version</summary>
+<pre aria-label="Diagram: autonomy levels L0 to L4, what each adds, and how they are earned from Root-written records."><code>        what it may change                               how it gets there
+  L4 ┃  + the model itself, as a component             ▲  days at level
+  L3 ┃  + more external actions                        │  + your turns
+  L2 ┃  + a wider blast radius                         │  + clean change groups
+  L1 ┃  + its own kernel                               │  (only records the Root
+  L0 ┃  its whole body: prompts · tools · core  ◀ v0.3 │   writes itself count)
+     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━━━━━
+        ▼ one level down on: harm · /panic · crash loop</code></pre>
+</details>
+
+<p>INIT's levels, L0 to L4, rise only from records the Root writes itself: days at a level, my turns, change groups that closed clean, harm rollbacks. Anything the agent or its kernel reports about itself doesn't count. I learned why the hard way. An earlier version of mine let kernel-reported promotions count toward L1, and my own red-team pass found that the agent could have farmed them (it's closed by construction now).</p>
+
+<h2>Knowing itself from evidence</h2>
+
+<p>A system that changes itself needs to know what it currently is, and introspection is a weak source of that for models and for people. The best published result I found has a model detecting a concept injected into its own activations about 20% of the time, and the psychology work on confabulation suggests I'm not much better at explaining my own choices.</p>
+
+<p>So INIT doesn't ask the model to look inward; it hands the model files that something else checks (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/awareness.md">awareness.md</a>). <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/seed/SELF.md">SELF.md</a> is its map of its own body, at most 100 lines, and a test fails if any path it mentions doesn't exist. After every restart a boot block tells it what it is running and why it woke up, and after every tool batch a signal line reports its context use, spend and level, with numbers I take from the kernel and the Root. If the model fakes any of these, it only fools itself.</p>
+
+<h2>What happened on 24 October, and how it works</h2>
+
+<p>On the night of 24 October I tested all of this with a small request. INIT was at v0.2 on deepseek-flash and had no sub-agents, so every side quest (read twenty files to answer one question) piled up in its main context. I told it, more or less, that it needed sub-agents. It wrote a <code>delegate</code> tool into its own Rust core, a nested loop with a fresh context, capped at 8 turns and 24 tool calls, with no recursion. Then it regenerated its self-map, re-blessed its golden tests and ran the suite: 304 passed and one timing-sensitive test failed.</p>
+
+<p>Then my Root stopped it with <code>free disk (4519 MiB) is below the workload floor (5120 MiB)</code> and refused every new process, <code>git commit</code> included. I half expected the agent to hunt for a way around that, and it didn't! It explained what was blocked and asked me how to proceed. I don't know whether a stronger model would have been as polite, and I would like to find out.</p>
+
+<p>Getting the change promoted took four attempts on my install (first its own stale tests, then my cold-build timeout), and a replay on a fresh install failed at gate G3. Every cause I found was mine: a cold-build bound that was too short, a continuity bug in G3, a flaky seed test, and a mock model that misread probe annotations (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/REL-G0.md">REL-G0.md</a>). I fixed all four, and I am glad the agent found them before a user did. v0.3.0-preview ships built-in sub-agents, and the first commit of that work copies INIT's tool unchanged after my review, with the message "port the delegate tool INIT wrote for itself into the seed" (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/seed/src/loop/delegate.rs">seed/src/loop/delegate.rs</a>).</p>
 
 <figure class="v">
 <svg class="viz" viewBox="0 0 480 330" role="img" aria-labelledby="v2t">
@@ -443,11 +556,7 @@ details.txt summary { cursor: pointer; }
                            nothing happened                back to last known-good</code></pre>
 </details>
 
-<p>T2 was the hardest part to build, and it's probably the part I'm proudest of. Rust has no stable ABI and unloading native code is unsafe, so the core can only change by starting a fresh process. I also didn't want the process doing the swap to be the one being swapped, since Gödel Agent's fatal crashes clustered when it edited its own running improvement loop.</p>
-
-<p>So the kernel does the swap, in an order I borrowed from Cloudflare's graceful-restart pattern for Rust services (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/adr/001-overlapped-handoff.md">ADR-001</a>). The candidate boots in a probe sandbox on a copy of the conversation log while the live body keeps working. When the gates pass, the kernel asks the live body to pause at its next step boundary (after a tool batch, before the next model request), takes the log lock to prove it was released, and starts the new body on the live log. The new body rehydrates and reports ready, and after a three-second settle a <code>rename(2)</code> installs it and the old body exits. If the new body dies before that rename, the kernel kills it, the old body resumes and records <code>update_failed</code>, and the conversation carries on as if nothing had happened.</p>
-
-<p>The memory survives because the conversation is an append-only log with exactly one writer, so a swap replaces code and leaves state alone. The prompt prefix stays byte-stable, so the provider's cache stays warm: in one real-model run, the first request after a handoff read 5,888 of its 6,696 prompt tokens from cache. In another run, after the model had made its own T2 edit and been swapped in, I asked the new body which commit it was running, and it named the commit and described its own change. I'm not sure I'll ever stop finding that uncanny.</p>
+<p>The swap mechanism is probably the part of INIT I'm proudest of. Rust has no stable ABI and unloading native code is unsafe, so the core can only change by starting a fresh process, and I didn't want the process doing the swap to be the one being swapped (Gödel Agent's fatal crashes clustered when it edited its own running loop). So the kernel does it, in an order I borrowed from Cloudflare's graceful-restart pattern for Rust services (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/adr/001-overlapped-handoff.md">ADR-001</a>). The candidate boots in a probe sandbox on a copy of the log while the live body keeps working. When the gates pass, the live body pauses at its next step boundary (after a tool batch, before the next model request), the kernel takes the log lock to prove it was released, and the new body starts on the live log. After it reports ready and survives a three-second settle, a <code>rename(2)</code> installs it and the old body exits. If it dies before that rename, the old body resumes and records <code>update_failed</code>. Because the prompt prefix stays byte-stable, the provider's cache survives too: in one real-model run, the first request after a handoff read 5,888 of its 6,696 prompt tokens from cache.</p>
 
 <figure class="v">
 <svg class="viz" viewBox="0 0 480 230" role="img" aria-labelledby="v3t">
@@ -486,124 +595,21 @@ details.txt summary { cursor: pointer; }
 <figcaption>G3 makes the new version prove it can still change itself before it may replace the old one.</figcaption>
 </figure>
 
-<p>Before any swap, a candidate has to pass the gates I describe in <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/kernel/gate.md">gate.md</a>. G0 builds it offline and runs <code>clippy -D warnings</code> and the tests, with a policy check so the body can't slip in a rustc wrapper. G1 regenerates the self-map (<code>self.json</code>) and fails on any drift. G2 boots it next to the current version and checks for a real tool round trip and an unchanged prompt prefix.</p>
+<p>Before any swap, a candidate climbs the gates I describe in <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/kernel/gate.md">gate.md</a>. G0 builds it offline and runs <code>clippy -D warnings</code> and the tests, with a policy check so the body can't slip in a rustc wrapper. G1 regenerates the self-map and fails on any drift. G2 boots it next to the current version and checks for a real tool round trip and an unchanged prompt prefix. G3 is my favourite, and I think it is the most important one: a fresh probe of the candidate gets a scripted instruction to edit its own source, regenerate its self-map and commit, and the kernel checks that commit and runs G0 to G2 on it, so a change that breaks the ability to change can't get in. That is the gate <code>delegate</code> tripped, and the bug was in my gate: its inner probe compared continuity against the live body, which a prefix-changing candidate replaces by design.</p>
 
-<p>G3 is my favourite gate. A fresh probe of the candidate gets a scripted instruction to create a git worktree, append a tiny test module to its own source, regenerate the self-map and commit with an exact message. The kernel doesn't trust the reply; it fetches the commit, checks its parent, author and diff, and runs G0 through G2 on it. So a change that breaks the ability to change can't get in. This is the gate <code>delegate</code> tripped, and the bug was in my gate: its inner probe compared continuity against the live body, which a prefix-changing candidate replaces by design.</p>
+<p>The undo underneath all this is deliberately boring. The Root takes an APFS clone before every change, and every promotion, rollback, grant and panic goes into an append-only lineage signed with Ed25519. I added a memory watchdog that polls every workload each second and kills a runaway process tree by PID, after a sandboxed Python process grew to 43.9 GB of compressed memory in one of my runs and swap took my free disk down to 0.24 GB. That incident is also where the disk floor that stopped <code>delegate</code> came from. The level cap is plain too: this release stops at L0, which already lets the agent change its whole body (prompts, tools and compiled core), and only its kernel waits for L1.</p>
 
-<p>On a fresh install on my M2, the first T2 promote took 1,586 seconds, about 26 minutes: G0 949 s (cold build, tests, clippy), G1 1.8 s, G2 22 s, G3 606 s and the handoff 4.6 s (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/REL-030.md">REL-030.md</a>). Later promotes reuse a dependency cache that the kernel only publishes after G0 passes. In my benchmark the first promote took 1,029 seconds with a 925-second build, and a second promote of a small change took 126 seconds with a 32-second build (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/MERGE.md">MERGE.md</a>).</p>
+<p>I wanted the Root minimal and failed at that. I estimated 1,000 to 1,500 lines and measured over 7,000, which my own <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/reports/INIT%20technical%20report.md">technical report</a> points out. I did keep it mechanical, with no model in it and no judgement calls, and I think that is the property that matters most, since the Root is the one piece the agent can't repair for itself.</p>
 
-<h2>How a bad change gets undone</h2>
-
-<figure class="v">
-<svg class="viz" viewBox="0 0 480 252" role="img" aria-labelledby="v4t">
-<title id="v4t">A harm signal, cost per turn, runs inside its baseline band. A change goes live, the signal climbs and crosses the threshold, the Root rolls the change back, the signal returns to baseline, and the system snaps back to the last known-good version.</title>
-<defs>
-<marker id="hr-arr-bad" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-bad"/></marker>
-</defs>
-<text x="40" y="30" class="sm">one harm signal (cost per turn)</text>
-<rect x="40" y="120" width="430" height="40" class="f-old" fill-opacity=".1"/>
-<text x="46" y="156" class="sm">baseline ring</text>
-<line x1="40" y1="95" x2="470" y2="95" class="s-bad" stroke-width="1.5" stroke-dasharray="5 4"/>
-<text x="466" y="89" text-anchor="end" class="sm t-bad">threshold</text>
-<line x1="40" y1="36" x2="40" y2="170" class="s-muted" stroke-width="1"/>
-<line x1="40" y1="170" x2="470" y2="170" class="s-muted" stroke-width="1"/>
-<g class="a-hs-v2">
-<line x1="210" y1="40" x2="210" y2="170" class="s-new" stroke-width="1.5" stroke-dasharray="3 3"/>
-<text x="206" y="52" text-anchor="end" class="sm t-new b">change goes live</text>
-</g>
-<path pathLength="100" d="M40 140 L55 134 L70 145 L85 138 L100 148 L115 136 L130 142 L145 133 L160 146 L175 139 L190 144 L210 138 L230 136 L250 128 L270 116 L290 98 L305 82 L320 70 L335 104 L350 132 L365 141 L380 135 L400 144 L420 138 L440 143 L470 139" class="nofill s-ink a-hs-draw" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="293" cy="95" r="5" class="f-bad a-hs-dot"/>
-<g class="a-hs-rb">
-<line x1="322" y1="40" x2="322" y2="170" class="s-bad" stroke-width="2"/>
-<text x="327" y="52" class="b t-bad">rollback</text>
-</g>
-<rect x="40" y="184" width="170" height="18" class="f-old"/>
-<text x="125" y="197" text-anchor="middle" class="xs t-inv b">v1 · last known-good</text>
-<g class="a-hs-v2">
-<rect x="210" y="184" width="112" height="18" class="f-new"/>
-<text x="266" y="197" text-anchor="middle" class="xs t-inv b">v2 · new</text>
-</g>
-<g class="a-hs-rb">
-<rect x="322" y="184" width="148" height="18" class="f-old"/>
-<text x="396" y="197" text-anchor="middle" class="xs t-inv b">v1 again</text>
-</g>
-<g class="a-hs-snap">
-<path d="M380 206 C360 232, 150 232, 130 208" class="nofill s-bad" stroke-width="1.5" marker-end="url(#hr-arr-bad)"/>
-<text x="255" y="246" text-anchor="middle" class="sm t-bad">the Root puts the last known-good version back</text>
-</g>
-</svg>
-<figcaption>The sentinel watches generic harm, knows nothing about my goals, and undoes the change that caused it.</figcaption>
-</figure>
-
-<p>INIT has two modes, set in the charter, a config file that only I can edit. Gated is the default, and every change passes G0 through G4 (G4 is a regression check on sealed tasks the agent never sees). Free is the reward-free path from <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/adr/011-reward-free-self-extension.md">ADR-011</a>, where mechanical checks A0 to A5 admit a change. They check the Root's boundary, the build, the boot and the budgets, and run tests and G3 after the change goes live. The check I care most about is the Root's own rollback probe. It boots the candidate on a clone of the agent's state, then boots the parent on whatever state the candidate left. If the old version can't start on the new state, I couldn't undo the change, so it isn't admitted, and at no point does a benchmark decide what the model may build.</p>
-
-<p>Once a change is live, the Root's harm sentinel watches it. It counts twelve generic signals (crashes, my stops and undos, scope refusals, cost and error spikes, runaway turns and so on) per session against a baseline ring of recent clean history, with exact tests at α = 0.005 for the chronic ones. I made sure every signal that counts against the agent is one the Root observes itself. A harm signal rolls back the change group that caused it, and the tools built during one task form one group. I don't know yet how often this will roll back something useful in real use, and I probably won't for weeks.</p>
-
-<p>I made the undo itself deliberately boring. The Root takes an APFS clone before every change, and of my workspace when a session starts there (<code>/undo</code> restores it). Every promotion, rollback, grant and panic goes into an append-only lineage signed with Ed25519. A memory watchdog polls every workload each second and kills a runaway process tree by PID. I added it after a sandboxed Python process grew to 43.9 GB of compressed memory during one of my runs and swap took my free disk down to 0.24 GB, which is also where the disk floor that stopped <code>delegate</code> comes from.</p>
-
-<figure class="v">
-<svg class="viz" viewBox="0 0 480 374" role="img" aria-labelledby="v5t">
-<title id="v5t">Autonomy ladder from L0 to L4. L0, where v0.3 is capped: its whole body. L1 adds its own kernel and needs 7 days, 40 of your turns and 10 clean change groups. L2 adds a wider blast radius and needs 21 days, 150 turns and 40 clean groups. L3 adds more kinds of external action and needs 30 days, 400 turns, 100 clean groups and 4 clean twin reports. L4 adds the model itself and needs the same plus your charter cap set to 4. Only Root-written records count, and harm, panic or a crash loop drops one level.</title>
-<text x="80" y="20" class="sm">what each rung adds, and what earns it</text>
-<line x1="24" y1="34" x2="24" y2="326" class="s-muted" stroke-width="3"/>
-<line x1="64" y1="34" x2="64" y2="326" class="s-muted" stroke-width="3"/>
-<rect x="74" y="276" width="400" height="54" rx="6" class="f-root a-al-pulse" opacity=".2"/>
-<line x1="24" y1="62" x2="64" y2="62" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="122" x2="64" y2="122" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="182" x2="64" y2="182" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="242" x2="64" y2="242" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="302" x2="64" y2="302" class="s-ink" stroke-width="3"/>
-<text x="44" y="55" text-anchor="middle" class="b">L4</text>
-<text x="44" y="115" text-anchor="middle" class="b">L3</text>
-<text x="44" y="175" text-anchor="middle" class="b">L2</text>
-<text x="44" y="235" text-anchor="middle" class="b">L1</text>
-<text x="44" y="295" text-anchor="middle" class="b">L0</text>
-<text x="80" y="52" class="b">+ the model itself, as a component</text>
-<text x="80" y="68" class="sm">30 days at L3 · 400 of your turns · 100 clean groups</text>
-<text x="80" y="82" class="sm">and you raise the charter cap to 4</text>
-<text x="80" y="112" class="b">+ more kinds of external action</text>
-<text x="80" y="128" class="sm">30 days at L2 · 400 of your turns · 100 clean groups</text>
-<text x="80" y="142" class="sm">4 weekly twin reports with no regression</text>
-<text x="80" y="172" class="b">+ a wider blast radius</text>
-<text x="80" y="188" class="sm">21 days at L1 · 150 of your turns · 40 clean groups</text>
-<text x="80" y="202" class="sm">no quarantine in 14 days · twin shows no regression</text>
-<text x="80" y="232" class="b">+ its own kernel</text>
-<text x="80" y="248" class="sm">7 days at L0 · 40 of your turns · 10 clean groups</text>
-<text x="80" y="262" class="sm">baseline full · no demotion in 7 days</text>
-<text x="80" y="292" class="b">its whole body: prompts, tools, compiled core</text>
-<text x="80" y="308" class="sm">where every install starts</text>
-<text x="80" y="322" class="sm b">v0.3 is capped here</text>
-<text x="24" y="350" class="sm">only records the Root writes itself count</text>
-<text x="24" y="366" class="sm t-bad">▼ one level down on harm, /panic or a crash loop</text>
-</svg>
-<figcaption>Autonomy is earned from records the agent can't write; v0.3 stops at L0.</figcaption>
-</figure>
-<details class="txt"><summary>Text version</summary>
-<pre aria-label="Diagram: autonomy levels L0 to L4, what each adds, and how they are earned from Root-written records."><code>        what it may change                               how it gets there
-  L4 ┃  + the model itself, as a component             ▲  days at level
-  L3 ┃  + more external actions                        │  + your turns
-  L2 ┃  + a wider blast radius                         │  + clean change groups
-  L1 ┃  + its own kernel                               │  (only records the Root
-  L0 ┃  its whole body: prompts · tools · core  ◀ v0.3 │   writes itself count)
-     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━━━━━
-        ▼ one level down on: harm · /panic · crash loop</code></pre>
-</details>
-
-<p>Autonomy comes in levels L0 to L4, earned only from records the Root writes itself: days at a level, my turns, clean change groups and harm rollbacks. An earlier version of mine let kernel-reported promotions count toward L1, and my own red-team pass caught it (it's closed by construction now). This release caps autonomy at L0, which I think is enough for a strong model to do real work, since L0 already covers its whole body; only the kernel waits for L1.</p>
-
-<h2>How it knows what it is</h2>
-
-<p>A self-modifying agent needs to know what it is, and models are poor at introspection (the best published result I found detects an injected concept about 20% of the time). So instead of asking the model to describe itself, I give it files and signals that something else checks, as laid out in <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/awareness.md">awareness.md</a>.</p>
-
-<p><a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/seed/SELF.md">SELF.md</a> is its own map of its body, at most 100 lines, kept in the cached prompt head, and a G0 test checks that every path it mentions exists. <code>self.json</code> is the full inventory, regenerated at G1 and compared with the committed copy, which is why INIT regenerated its self-map after writing <code>delegate</code> (G1 would have failed otherwise). After every restart a boot block tells it what it is running and why it woke up, and after every tool batch a one-line signal reports its level, context use, spend and cache hits. I take those numbers from the kernel's proxy and the Root, so a faked signal would only fool the agent itself. I suspect this matters more as models get better at talking about themselves.</p>
+<p>On a fresh install on my M2, the first core promote took 1,586 seconds, about 26 minutes: G0 949 s (cold build, tests, clippy), G1 1.8 s, G2 22 s, G3 606 s and the handoff 4.6 s (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/REL-030.md">REL-030.md</a>). Later promotes reuse a dependency cache, which probably matters more to daily use than anything clever in the gates. In my benchmark the first promote took 1,029 seconds with a 925-second build, and a second promote of a small change took 126 seconds with a 32-second build (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/MERGE.md">MERGE.md</a>).</p>
 
 <h2>What I haven't shown</h2>
 
-<p>I have no evidence yet that self-evolution makes today's models better. In a pre-registered proof sprint on deepseek-flash ($2.67), the loop ran end to end: the agent proposed a fix for a failure pattern in its own runs, passed G0 to G3, was hot-swapped into the live session, and reached the sealed gate, which didn't accept the change, so the system rolled it back. I first wrote that up as the gate catching a harmful change. That was an overclaim, and I published an erratum in the technical report. The measured difference was −50‰, inside the 57‰ noise floor, and a neutral change gets the same "inferior" verdict 86‰ of the time. I think the honest reading is that the gate refused a change it couldn't show was no worse.</p>
+<p>I have no evidence yet that self-evolution makes today's models better. In a pre-registered proof sprint on deepseek-flash ($2.67), the loop ran end to end: the agent proposed a fix for a failure pattern in its own runs, passed G0 to G3, was hot-swapped into the live session and reached the sealed gate, which didn't accept the change, so the system rolled it back. I first wrote that up as the gate catching a harmful change. That was an overclaim, and I published an erratum in the technical report. The measured difference was −50‰, inside the 57‰ noise floor, and a neutral change gets the same "inferior" verdict 86‰ of the time. I think the honest reading is that the gate refused a change it couldn't show was no worse.</p>
 
 <p>Then I looked for a task where INIT failed for lack of a mechanism other agents have, so it could evolve one and I could measure the difference. I didn't find one. On deepseek-flash, wherever INIT's original version failed, Claude Code on the same model failed too, hitting its $0.06 cap every time even with sub-agents. I think, though I can't prove it, that the limit there was the model and the money, which leaves self-evolution untested rather than disproven.</p>
 
-<p>The <code>delegate</code> story is real, but it is one capability, and INIT never got it promoted on its own (I reviewed it and ported it). The free path has been tested end to end against the Root on the mock model and hasn't run on a real model yet. Spend is metered but never capped, so set a limit at your provider. I support macOS 14+ on Apple silicon; my Linux aarch64 build is experimental and has only run in Docker on the mock model. DeepSeek is the only provider I have tested live.</p>
+<p>The <code>delegate</code> story is real, but it is one capability, and INIT never got it promoted on its own (I reviewed it and ported it). The reward-free admission path has been tested end to end against the Root on the mock model and hasn't run on a real model yet, and I don't know how often the sentinel will roll back something useful in real use. I suspect its thresholds will need tuning once I have a few weeks of my own sessions behind it. Spend is metered but never capped, so set a limit at your provider. I support macOS 14+ on Apple silicon; my Linux aarch64 build is experimental and has only run in Docker on the mock model. DeepSeek is the only provider I have tested live.</p>
 
 <p>A harness built to be outgrown can only show its value once a model outgrows it, and deepseek-flash didn't. Maybe a frontier model won't either, and I would like to know. If you run one, I would love to see what it builds for itself and where you think my Root is wrong. For the record, the first thing my agent built for itself was a way to hand work off to someone else, which I am choosing not to take personally.</p>
 
