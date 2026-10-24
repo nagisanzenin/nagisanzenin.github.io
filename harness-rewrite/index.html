@@ -154,136 +154,64 @@ footer {
 
 /* ---- visuals ---- */
 :root {
-  --v-old: #2f6fb3;
-  --v-new: #2e8b57;
-  --v-bad: #c62828;
+  --v-old: #2a63a2;
+  --v-new: #1c7043;
+  --v-bad: #b3261e;
   --v-root: #d29922;
   --v-panel: #efebe3;
+  --v-on: #ffffff;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --v-old: #6cb6ff;
     --v-new: #3fb950;
-    --v-bad: #f85149;
+    --v-bad: #ff6b61;
     --v-root: #e6b450;
     --v-panel: #1b2127;
+    --v-on: #0b0f14;
   }
 }
 :root[data-theme="dark"] {
   --v-old: #6cb6ff;
   --v-new: #3fb950;
-  --v-bad: #f85149;
+  --v-bad: #ff6b61;
   --v-root: #e6b450;
   --v-panel: #1b2127;
+  --v-on: #0b0f14;
 }
-figure.v { margin: 1.25rem 0 1.75rem; }
+figure.v { margin: 1.5rem 0 1.75rem; }
 .banner-fig { display: block; width: 100%; height: auto; border-radius: 8px; background: #0d1117; }
-figure.v figcaption { margin-top: 0.4rem; }
-.viz { display: block; width: 100%; height: auto; overflow: visible; }
-.viz text { font-family: inherit; fill: var(--fg); font-size: 13px; }
-.viz .sm { font-size: 11.5px; fill: var(--muted); }
-.viz .xs { font-size: 10px; }
+figure.v figcaption { margin-top: 0.5rem; }
+.viz { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; }
+.viz text { font-family: inherit; font-size: 14px; fill: var(--fg); }
 .viz .b { font-weight: 650; }
+.viz .h { font-size: 15px; font-weight: 650; }
+.viz .mu { fill: var(--muted); }
 .viz .t-old { fill: var(--v-old); }
 .viz .t-new { fill: var(--v-new); }
 .viz .t-bad { fill: var(--v-bad); }
-.viz .t-inv { fill: var(--bg); }
-.viz .t-dark { fill: #1b1b1b; }
+.viz .t-on { fill: var(--v-on); }
+.viz .t-root { fill: #1b1b1b; }
 .viz .f-old { fill: var(--v-old); }
 .viz .f-new { fill: var(--v-new); }
 .viz .f-bad { fill: var(--v-bad); }
 .viz .f-root { fill: var(--v-root); }
 .viz .f-panel { fill: var(--v-panel); }
-.viz .nofill { fill: none; }
-.viz .s-muted { stroke: var(--muted); }
+.viz .f-none { fill: none; }
+.viz .s-fg { stroke: var(--fg); }
+.viz .s-mu { stroke: var(--muted); }
 .viz .s-rule { stroke: var(--rule); }
-.viz .s-ink { stroke: var(--fg); }
 .viz .s-old { stroke: var(--v-old); }
 .viz .s-new { stroke: var(--v-new); }
 .viz .s-bad { stroke: var(--v-bad); }
-.viz .fb { transform-box: fill-box; }
-.viz .ol { transform-origin: 0% 50%; }
-.viz .ob { transform-origin: 50% 100%; }
-.viz .oc { transform-origin: 50% 50%; }
+.viz .w2 { stroke-width: 2; }
+.viz .w4 { stroke-width: 4; }
+.viz .dash { stroke-dasharray: 5 4; }
 details.txt { margin: -0.75rem 0 1.5rem; color: var(--muted); font-size: 0.9rem; }
 details.txt summary { cursor: pointer; }
-
-/* 1. ceiling */
-@keyframes cl-grow { 0% { transform: scale(.2); } 60%, 92% { transform: scale(1); } 100% { transform: scale(.2); } }
-@keyframes cl-hit { 0%, 57% { stroke: var(--muted); } 60%, 92% { stroke: var(--v-bad); } 100% { stroke: var(--muted); } }
-@keyframes cl-txt { 0%, 57% { opacity: 0; } 62%, 92% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes cr-box { 0% { transform: scale(.5, .45); } 50%, 92% { transform: scale(1); } 100% { transform: scale(.5, .45); } }
-@keyframes cr-mod { 0% { transform: scale(.45); } 60%, 92% { transform: scale(1); } 100% { transform: scale(.45); } }
-.a-cl-grow { animation: cl-grow 8s ease-in-out infinite; }
-.a-cl-hit { animation: cl-hit 8s ease-in-out infinite; }
-.a-cl-txt { animation: cl-txt 8s ease-in-out infinite; }
-.a-cr-box { animation: cr-box 8s ease-in-out infinite; }
-.a-cr-mod { animation: cr-mod 8s ease-in-out infinite; }
-
-/* 2. life of a self-change */
-@keyframes tl-old { 0% { transform: scaleX(0); opacity: 1; } 45% { transform: scaleX(1); opacity: 1; } 55% { transform: scaleX(1); opacity: 1; } 62%, 100% { transform: scaleX(1); opacity: .3; } }
-@keyframes tl-build { 0%, 8% { transform: scaleX(0); } 25%, 100% { transform: scaleX(1); } }
-@keyframes tl-btxt { 0%, 20% { opacity: 0; } 25%, 100% { opacity: 1; } }
-@keyframes tl-probe { 0%, 26% { opacity: 0; } 30%, 100% { opacity: 1; } }
-@keyframes tl-pause { 0%, 43% { opacity: 0; } 46%, 100% { opacity: 1; } }
-@keyframes tl-hand { 0%, 50% { opacity: 0; } 54%, 100% { opacity: 1; } }
-@keyframes tl-new { 0%, 55% { transform: scaleX(0); } 92%, 100% { transform: scaleX(1); } }
-@keyframes tl-pen {
-  0% { transform: translateX(0); fill: var(--v-old); }
-  45% { transform: translateX(210px); fill: var(--v-old); }
-  53% { transform: translateX(210px); fill: var(--v-old); }
-  55% { transform: translateX(210px); fill: var(--v-new); }
-  92%, 100% { transform: translateX(370px); fill: var(--v-new); }
-}
-@keyframes tl-old2 { 0% { transform: scaleX(0); } 92%, 100% { transform: scaleX(1); } }
-@keyframes tl-x { 0%, 29% { opacity: 0; } 32%, 100% { opacity: 1; } }
-@keyframes tl-ok { 0%, 36% { opacity: 0; } 40%, 100% { opacity: 1; } }
-.a-tl-old { animation: tl-old 10s linear infinite; }
-.a-tl-build { animation: tl-build 10s linear infinite; }
-.a-tl-btxt { animation: tl-btxt 10s linear infinite; }
-.a-tl-probe { animation: tl-probe 10s linear infinite; }
-.a-tl-pause { animation: tl-pause 10s linear infinite; }
-.a-tl-hand { animation: tl-hand 10s linear infinite; }
-.a-tl-new { animation: tl-new 10s linear infinite; }
-.a-tl-pen { animation: tl-pen 10s linear infinite; }
-.a-tl-old2 { animation: tl-old2 10s linear infinite; }
-.a-tl-x { animation: tl-x 10s linear infinite; }
-.a-tl-ok { animation: tl-ok 10s linear infinite; }
-
-/* 3. gate ladder */
-@keyframes gl-tok {
-  0%, 18% { transform: translate(0, 0); }
-  25%, 43% { transform: translate(110px, -30px); }
-  50%, 68% { transform: translate(220px, -60px); }
-  75%, 95% { transform: translate(330px, -90px); }
-  100% { transform: translate(0, 0); }
-}
-@keyframes gl-lit1 { 0%, 23% { opacity: 0; } 25%, 97% { opacity: .25; } 100% { opacity: 0; } }
-@keyframes gl-lit2 { 0%, 48% { opacity: 0; } 50%, 97% { opacity: .25; } 100% { opacity: 0; } }
-@keyframes gl-lit3 { 0%, 73% { opacity: 0; } 75%, 97% { opacity: .3; } 100% { opacity: 0; } }
-@keyframes gl-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.a-gl-tok { animation: gl-tok 10s ease-in-out infinite; }
-.a-gl-lit1 { animation: gl-lit1 10s linear infinite; }
-.a-gl-lit2 { animation: gl-lit2 10s linear infinite; }
-.a-gl-lit3 { animation: gl-lit3 10s linear infinite; }
-.a-gl-spin { animation: gl-spin 3s linear infinite; }
-
-/* 4. harm sentinel */
-@keyframes hs-draw { 0%, 5% { stroke-dashoffset: 100; } 75%, 100% { stroke-dashoffset: 0; } }
-@keyframes hs-v2 { 0%, 30% { opacity: 0; } 32%, 100% { opacity: 1; } }
-@keyframes hs-dot { 0%, 44% { opacity: 0; } 46%, 100% { opacity: 1; } }
-@keyframes hs-rb { 0%, 48% { opacity: 0; } 50%, 100% { opacity: 1; } }
-@keyframes hs-snap { 0%, 51% { opacity: 0; } 54%, 100% { opacity: 1; } }
-.a-hs-draw { stroke-dasharray: 100; animation: hs-draw 10s linear infinite; }
-.a-hs-v2 { animation: hs-v2 10s linear infinite; }
-.a-hs-dot { animation: hs-dot 10s linear infinite; }
-.a-hs-rb { animation: hs-rb 10s linear infinite; }
-.a-hs-snap { animation: hs-snap 10s linear infinite; }
-
-/* 5. autonomy ladder */
-@keyframes al-pulse { 0%, 100% { opacity: .12; } 50% { opacity: .3; } }
-.a-al-pulse { animation: al-pulse 3s ease-in-out infinite; }
-
+/* Animation only adds emphasis (opacity); every frame carries the full message. */
+@keyframes v-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+.viz .pulse { animation: v-pulse 2.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
   .viz * { animation: none !important; }
 }
@@ -311,25 +239,31 @@ details.txt summary { cursor: pointer; }
 <p>I don't think that arrangement survives a model smarter than its designers, and the question of who should design the scaffolding of such a mind interests me more than any feature I could add. If the model in my loop understands agent design better than I do, every decision I froze into the harness was made by the less capable of the two of us. The model may see that <code>grep</code> can't parse the build language it is migrating off, or that my compaction keeps dropping the type signatures it needs, and in a fixed harness it can only work around my choices and wait for my next release. Then I am the bottleneck in my own tool, in the one layer of the agent still written entirely by hand, which the model touches on every step.</p>
 
 <figure class="v">
-<svg class="viz" viewBox="0 0 480 250" role="img" aria-labelledby="v1t">
-<title id="v1t">Left: a model grows inside a fixed, hand-written harness box until it hits the walls. Right: in INIT the model's box grows with it, and only the Root floor underneath stays fixed.</title>
-<text x="115" y="22" text-anchor="middle" class="b">A fixed harness</text>
-<rect x="25" y="40" width="180" height="150" rx="6" class="nofill s-bad a-cl-hit" stroke-width="2.5"/>
-<circle cx="115" cy="115" r="75" class="f-old fb oc a-cl-grow" fill-opacity=".85"/>
-<text x="115" y="119" text-anchor="middle" class="t-inv b">model</text>
-<text x="115" y="208" text-anchor="middle" class="sm">hand-written, sized for weaker models</text>
-<text x="115" y="230" text-anchor="middle" class="b t-bad a-cl-txt">hits the ceiling</text>
-
-<text x="365" y="22" text-anchor="middle" class="b">INIT</text>
-<text x="365" y="38" text-anchor="middle" class="sm">the box it rewrites</text>
-<rect x="275" y="46" width="180" height="146" rx="6" class="nofill s-new fb ob a-cr-box" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
-<circle cx="365" cy="136" r="52" class="f-old fb ob a-cr-mod" fill-opacity=".85"/>
-<text x="365" y="176" text-anchor="middle" class="t-inv b">model</text>
-<rect x="265" y="196" width="200" height="22" rx="4" class="f-root"/>
-<text x="365" y="211" text-anchor="middle" class="t-dark b">ROOT · never changes</text>
-<text x="365" y="236" text-anchor="middle" class="sm t-new b">reshapes its own box</text>
+<svg class="viz" viewBox="0 0 400 252" role="img" aria-labelledby="v1t">
+<title id="v1t">Left: a fixed harness. The model is squashed against a hand-drawn box that cannot change size. Right: INIT. The box bends and grows around the model, and only the gold Root floor underneath stays put.</title>
+<defs><clipPath id="v1clip"><path d="M22,50 L178,50 L178,182 L22,182 Z"/></clipPath></defs>
+<text x="100" y="22" text-anchor="middle" class="h">A fixed harness</text>
+<g clip-path="url(#v1clip)">
+<circle cx="100" cy="116" r="74" class="f-old"><animate attributeName="r" values="70;78;70" dur="3s" repeatCount="indefinite"/></circle>
+</g>
+<path d="M20,49 L101,47 L180,49 L181,116 L180,183 L99,185 L20,183 L19,116 Z" class="f-none s-fg w2" stroke-linejoin="round"/>
+<text x="100" y="121" text-anchor="middle" class="b t-on">model</text>
+<g class="s-bad w2" stroke-linecap="round">
+<path d="M78,34 L84,42 M100,31 L100,41 M122,34 L116,42"/>
+<path d="M78,198 L84,190 M100,201 L100,191 M122,198 L116,190"/>
+</g>
+<text x="100" y="222" text-anchor="middle" class="mu">fixed size, drawn by hand</text>
+<text x="100" y="242" text-anchor="middle" class="b t-bad">the model hits the walls</text>
+<line x1="200" y1="10" x2="200" y2="244" class="s-rule w2"/>
+<text x="300" y="22" text-anchor="middle" class="h">INIT</text>
+<path d="M238,184 Q222,122 238,60 Q300,44 362,60 Q378,122 362,184 Z" class="f-none s-new w2" stroke-linejoin="round"><animate attributeName="d" values="M244,184 Q228,128 244,72 Q300,56 356,72 Q372,128 356,184 Z;M232,184 Q216,116 232,48 Q300,32 368,48 Q384,116 368,184 Z;M244,184 Q228,128 244,72 Q300,56 356,72 Q372,128 356,184 Z" dur="5s" repeatCount="indefinite"/></path>
+<circle cx="300" cy="122" r="50" class="f-old"><animate attributeName="r" values="44;56;44" dur="5s" repeatCount="indefinite"/><animate attributeName="cy" values="128;116;128" dur="5s" repeatCount="indefinite"/></circle>
+<text x="300" y="132" text-anchor="middle" class="b t-on">model</text>
+<rect x="210" y="186" width="180" height="24" rx="4" class="f-root"/>
+<text x="300" y="203" text-anchor="middle" class="b t-root">ROOT · stays put</text>
+<text x="300" y="242" text-anchor="middle" class="b t-new">its box grows with it</text>
 </svg>
-<figcaption>Left, the model outgrows a box someone else drew. Right, it redraws the box; only the Root stays put.</figcaption>
+<figcaption>Left, the model presses against a box someone else drew. Right, the box grows with the model, and only the Root under it stays put.</figcaption>
 </figure>
 
 <p>Rich Sutton's bitter lesson is the record of this happening one level down. Computer vision spent years on hand-engineered features like SIFT until learned features beat them, and chess and Go engines went the same way with hand-tuned evaluation. My view is that harness scaffolds are the hand-crafted features of this era. The agent loop, the memory scheme, the planner and the compaction rule each encode what I currently believe good agent behaviour looks like, and I suspect each one will lose to whatever a capable model would build for itself. Applied one level up, the lesson is uncomfortable for me, because I enjoy building harnesses, and it says the most durable thing I can build is the part that lets the model replace the rest.</p>
@@ -349,42 +283,30 @@ details.txt summary { cursor: pointer; }
 <p>What makes this work, as far as I can tell, is an asymmetry: harm is generic and value is specific. To know whether a new memory scheme is good, I would need to know what it is for. To know whether it hurt, I only need to see the agent crashing, my cost per turn doubling, or myself stopping it and undoing its work, and none of that requires understanding the change. So INIT asks every self-change two questions: can I undo it, and did it cause harm? Before a change goes live, the Root boots the old version on the state the new one left behind; if the old version can't start, the change can't be undone and stays out. After it goes live, a harm sentinel in the Root watches twelve generic signals and rolls back whichever change group tripped one.</p>
 
 <figure class="v">
-<svg class="viz" viewBox="0 0 480 252" role="img" aria-labelledby="v4t">
-<title id="v4t">A harm signal, cost per turn, runs inside its baseline band. A change goes live, the signal climbs and crosses the threshold, the Root rolls the change back, the signal returns to baseline, and the system snaps back to the last known-good version.</title>
-<defs>
-<marker id="hr-arr-bad" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-bad"/></marker>
-</defs>
-<text x="40" y="30" class="sm">one harm signal (cost per turn)</text>
-<rect x="40" y="120" width="430" height="40" class="f-old" fill-opacity=".1"/>
-<text x="46" y="156" class="sm">baseline ring</text>
-<line x1="40" y1="95" x2="470" y2="95" class="s-bad" stroke-width="1.5" stroke-dasharray="5 4"/>
-<text x="466" y="89" text-anchor="end" class="sm t-bad">threshold</text>
-<line x1="40" y1="36" x2="40" y2="170" class="s-muted" stroke-width="1"/>
-<line x1="40" y1="170" x2="470" y2="170" class="s-muted" stroke-width="1"/>
-<g class="a-hs-v2">
-<line x1="210" y1="40" x2="210" y2="170" class="s-new" stroke-width="1.5" stroke-dasharray="3 3"/>
-<text x="206" y="52" text-anchor="end" class="sm t-new b">change goes live</text>
-</g>
-<path pathLength="100" d="M40 140 L55 134 L70 145 L85 138 L100 148 L115 136 L130 142 L145 133 L160 146 L175 139 L190 144 L210 138 L230 136 L250 128 L270 116 L290 98 L305 82 L320 70 L335 104 L350 132 L365 141 L380 135 L400 144 L420 138 L440 143 L470 139" class="nofill s-ink a-hs-draw" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="293" cy="95" r="5" class="f-bad a-hs-dot"/>
-<g class="a-hs-rb">
-<line x1="322" y1="40" x2="322" y2="170" class="s-bad" stroke-width="2"/>
-<text x="327" y="52" class="b t-bad">rollback</text>
-</g>
-<rect x="40" y="184" width="170" height="18" class="f-old"/>
-<text x="125" y="197" text-anchor="middle" class="xs t-inv b">v1 · last known-good</text>
-<g class="a-hs-v2">
-<rect x="210" y="184" width="112" height="18" class="f-new"/>
-<text x="266" y="197" text-anchor="middle" class="xs t-inv b">v2 · new</text>
-</g>
-<g class="a-hs-rb">
-<rect x="322" y="184" width="148" height="18" class="f-old"/>
-<text x="396" y="197" text-anchor="middle" class="xs t-inv b">v1 again</text>
-</g>
-<g class="a-hs-snap">
-<path d="M380 206 C360 232, 150 232, 130 208" class="nofill s-bad" stroke-width="1.5" marker-end="url(#hr-arr-bad)"/>
-<text x="255" y="246" text-anchor="middle" class="sm t-bad">the Root puts the last known-good version back</text>
-</g>
+<svg class="viz" viewBox="0 0 400 262" role="img" aria-labelledby="v4t">
+<title id="v4t">One harm signal, cost per turn, stays inside its normal range. A change goes live, the signal climbs past the harm threshold, the Root rolls the change back, and the signal returns to normal. Underneath, version 1 runs, then version 2, then version 1 again.</title>
+<text x="10" y="18" class="mu">one harm signal: cost per turn</text>
+<rect x="40" y="118" width="350" height="52" class="f-old" fill-opacity=".16"/>
+<text x="386" y="165" text-anchor="end" class="mu">normal range</text>
+<line x1="40" y1="88" x2="390" y2="88" class="s-bad w2 dash"/>
+<text x="390" y="80" text-anchor="end" class="t-bad">harm threshold</text>
+<line x1="40" y1="34" x2="40" y2="172" class="s-mu w2"/>
+<line x1="40" y1="172" x2="390" y2="172" class="s-mu w2"/>
+<line x1="170" y1="38" x2="170" y2="172" class="s-new w2 dash"/>
+<text x="164" y="52" text-anchor="end" class="b t-new">change goes live</text>
+<line x1="262" y1="38" x2="262" y2="172" class="s-bad w2"/>
+<text x="268" y="52" class="b t-bad">rollback</text>
+<path d="M40,140 L56,134 L72,144 L88,137 L104,146 L120,135 L136,142 L152,134 L170,140 L188,134 L204,124 L220,110 L236,96 L246,84 L256,70 L262,74 L276,118 L290,136 L306,141 L322,134 L338,144 L354,137 L372,143 L390,138" class="f-none s-fg w2" stroke-linejoin="round"/>
+<circle cx="243" cy="88" r="9" class="f-none s-bad w2 pulse"/>
+<circle cx="243" cy="88" r="4" class="f-bad"/>
+<rect x="40" y="184" width="130" height="26" class="f-old"/>
+<text x="105" y="202" text-anchor="middle" class="b t-on">v1</text>
+<rect x="170" y="184" width="92" height="26" class="f-new"/>
+<text x="216" y="202" text-anchor="middle" class="b t-on">v2</text>
+<rect x="262" y="184" width="128" height="26" class="f-old"/>
+<text x="326" y="202" text-anchor="middle" class="b t-on">v1 again</text>
+<rect x="10" y="226" width="380" height="24" rx="4" class="f-root"/>
+<text x="200" y="243" text-anchor="middle" class="b t-root">ROOT · puts the last working version back</text>
 </svg>
 <figcaption>The sentinel watches generic harm, knows nothing about my goals, and undoes the change that caused it.</figcaption>
 </figure>
@@ -394,39 +316,40 @@ details.txt summary { cursor: pointer; }
 <p>The same idea tells me how much rope to give. We don't hand people authority because they describe themselves well; a new engineer gets production access after months of reviewed commits, and a pilot's ratings follow logged flight hours. INIT's autonomy levels, L0 to L4, rise only from records the Root writes itself: days at a level, my turns, change groups that closed clean. Anything the agent or its kernel reports about itself doesn't count. I learned why when I noticed that an earlier version counted promotions reported by the kernel, the very part the agent will one day be allowed to rewrite, so it could have padded its own logbook. One incident (harm, a <code>/panic</code> from me, a crash loop) drops it a level.</p>
 
 <figure class="v">
-<svg class="viz" viewBox="0 0 480 374" role="img" aria-labelledby="v5t">
-<title id="v5t">Autonomy ladder from L0 to L4. L0, where v0.3 is capped: its whole body. L1 adds its own kernel and needs 7 days, 40 of your turns and 10 clean change groups. L2 allows more open changes at once and needs 21 days, 150 turns and 40 clean groups. L3 adds more kinds of external action and needs 30 days, 400 turns, 100 clean groups and 4 clean twin reports. L4 adds the model itself and needs the same plus your charter cap set to 4. Only Root-written records count, and harm, panic or a crash loop drops one level.</title>
-<text x="80" y="20" class="sm">what each rung adds, and what earns it</text>
-<line x1="24" y1="34" x2="24" y2="326" class="s-muted" stroke-width="3"/>
-<line x1="64" y1="34" x2="64" y2="326" class="s-muted" stroke-width="3"/>
-<rect x="74" y="276" width="400" height="54" rx="6" class="f-root a-al-pulse" opacity=".2"/>
-<line x1="24" y1="62" x2="64" y2="62" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="122" x2="64" y2="122" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="182" x2="64" y2="182" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="242" x2="64" y2="242" class="s-ink" stroke-width="3"/>
-<line x1="24" y1="302" x2="64" y2="302" class="s-ink" stroke-width="3"/>
-<text x="44" y="55" text-anchor="middle" class="b">L4</text>
-<text x="44" y="115" text-anchor="middle" class="b">L3</text>
-<text x="44" y="175" text-anchor="middle" class="b">L2</text>
-<text x="44" y="235" text-anchor="middle" class="b">L1</text>
-<text x="44" y="295" text-anchor="middle" class="b">L0</text>
-<text x="80" y="52" class="b">+ the model itself, as a component</text>
-<text x="80" y="68" class="sm">30 days at L3 · 400 of your turns · 100 clean groups</text>
-<text x="80" y="82" class="sm">and you raise the charter cap to 4</text>
-<text x="80" y="112" class="b">+ more kinds of external action</text>
-<text x="80" y="128" class="sm">30 days at L2 · 400 of your turns · 100 clean groups</text>
-<text x="80" y="142" class="sm">4 weekly twin reports with no regression</text>
-<text x="80" y="172" class="b">+ more open changes at once</text>
-<text x="80" y="188" class="sm">21 days at L1 · 150 of your turns · 40 clean groups</text>
-<text x="80" y="202" class="sm">no quarantine in 14 days · twin shows no regression</text>
-<text x="80" y="232" class="b">+ its own kernel</text>
-<text x="80" y="248" class="sm">7 days at L0 · 40 of your turns · 10 clean groups</text>
-<text x="80" y="262" class="sm">baseline full · no demotion in 7 days</text>
-<text x="80" y="292" class="b">its whole body: prompts, tools, compiled core</text>
-<text x="80" y="308" class="sm">where every install starts</text>
-<text x="80" y="322" class="sm b">v0.3 is capped here</text>
-<text x="24" y="350" class="sm">only records the Root writes itself count</text>
-<text x="24" y="366" class="sm t-bad">▼ one level down on harm, /panic or a crash loop</text>
+<svg class="viz" viewBox="0 0 400 440" role="img" aria-labelledby="v5t">
+<title id="v5t">Autonomy ladder from L0 to L4. L0, where every install starts and where v0.3 is capped: its whole body, meaning prompts, tools and compiled core. L1 adds its own kernel and needs 7 days, 40 of your turns and 10 clean change groups. L2 allows more open changes at once and needs 21 days, 150 turns, 40 clean groups and no quarantine in 14 days. L3 adds more kinds of external action and needs 30 days, 400 turns, 100 clean groups and 4 clean twin reports. L4 adds the model itself and needs the same record plus your charter cap set to 4. Harm, a panic or a crash loop drops one level. Only records the Root writes count.</title>
+<text x="10" y="20" class="mu">what each level adds, and the record that earns it</text>
+<line x1="14" y1="34" x2="14" y2="366" class="s-mu w4"/>
+<line x1="44" y1="34" x2="44" y2="366" class="s-mu w4"/>
+<line x1="14" y1="62" x2="44" y2="62" class="s-fg w2"/>
+<text x="29" y="56" text-anchor="middle" class="b">L4</text>
+<text x="68" y="52" class="b">+ the model itself, as a component</text>
+<text x="68" y="71" class="mu">same record as L3</text>
+<text x="68" y="89" class="mu">and you raise the charter cap to 4</text>
+<line x1="14" y1="128" x2="44" y2="128" class="s-fg w2"/>
+<text x="29" y="122" text-anchor="middle" class="b">L3</text>
+<text x="68" y="118" class="b">+ more kinds of external action</text>
+<text x="68" y="137" class="mu">30 days at L2 · 400 of your turns</text>
+<text x="68" y="155" class="mu">100 clean groups · 4 clean twin reports</text>
+<line x1="14" y1="194" x2="44" y2="194" class="s-fg w2"/>
+<text x="29" y="188" text-anchor="middle" class="b">L2</text>
+<text x="68" y="184" class="b">+ more open changes at once</text>
+<text x="68" y="203" class="mu">21 days at L1 · 150 of your turns</text>
+<text x="68" y="221" class="mu">40 clean groups · no quarantine in 14 days</text>
+<line x1="14" y1="260" x2="44" y2="260" class="s-fg w2"/>
+<text x="29" y="254" text-anchor="middle" class="b">L1</text>
+<text x="68" y="250" class="b">+ its own kernel</text>
+<text x="68" y="269" class="mu">7 days at L0 · 40 of your turns</text>
+<text x="68" y="287" class="mu">10 clean groups · no demotion in 7 days</text>
+<rect x="58" y="298" width="336" height="60" rx="6" class="f-panel s-new w2"/>
+<line x1="14" y1="326" x2="44" y2="326" class="s-fg w2"/>
+<text x="29" y="320" text-anchor="middle" class="b">L0</text>
+<text x="68" y="316" class="b">its whole body: prompts, tools, core</text>
+<text x="68" y="335" class="mu">where every install starts</text>
+<text x="68" y="353" class="b t-new">v0.3 is capped here</text>
+<text x="10" y="384" class="b t-bad">▼ one level down on harm, /panic or a crash loop</text>
+<rect x="10" y="400" width="380" height="24" rx="4" class="f-root"/>
+<text x="200" y="417" text-anchor="middle" class="b t-root">ROOT · writes the only records that count</text>
 </svg>
 <figcaption>Autonomy is earned from records the agent can't write; v0.3 stops at L0.</figcaption>
 </figure>
@@ -494,47 +417,29 @@ details.txt summary { cursor: pointer; }
 <p>Rust has no stable ABI and you can't reliably unload native code, so the core can only change through a fresh process, and I didn't want the swapper to be the thing swapped (Gödel Agent's fatal crashes clustered when it edited its own running loop). So the kernel does it, in an order I borrowed from Cloudflare's graceful-restart pattern for Rust services (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/adr/001-overlapped-handoff.md">ADR-001</a>). The candidate boots on a copy of the log while the live body keeps working. When the gates pass, the live body pauses at its next step boundary (after a tool batch, before the next model request) and releases the log; the kernel takes the lock itself to prove it, then starts the new body on the live log. Only after the new body reports ready and survives a three-second settle does a <code>rename(2)</code> install it and the old body exit. If the new body dies at any point before that rename, the old body resumes, records <code>update_failed</code> and carries on with the same conversation, so a failed swap is a non-event. The prompt prefix stays byte-stable, so the provider's cache survives too: after one real-model handoff, the first request read 5,888 of its 6,696 prompt tokens from cache.</p>
 
 <figure class="v">
-<svg class="viz" viewBox="0 0 480 330" role="img" aria-labelledby="v2t">
-<title id="v2t">Timeline of a self-change. The old body keeps running while the new body is built and probed on a copy of the log. At a step boundary the old body pauses, the conversation log hands over to the new body, and the old body exits. In the crash case, the new body dies in its probe and the old body never stops.</title>
-<text x="8" y="20" class="sm">a core change, while you keep talking</text>
-<text x="8" y="64" class="b">old body</text>
-<text x="8" y="124" class="b">new body</text>
-<text x="8" y="188" class="b">the log</text>
-<rect x="100" y="52" width="210" height="16" rx="3" class="f-old fb ol a-tl-old"/>
-<text x="316" y="64" class="sm a-tl-hand">exits</text>
-<rect x="130" y="112" width="100" height="16" rx="3" class="nofill s-new fb ol a-tl-build" stroke-width="1.5" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
-<text x="180" y="124" text-anchor="middle" class="xs a-tl-btxt">build · G0 G1</text>
-<g class="a-tl-probe">
-<rect x="232" y="112" width="74" height="16" rx="3" class="f-new s-new" fill-opacity=".3" stroke-width="1.5"/>
-<text x="269" y="124" text-anchor="middle" class="xs">probe · G2 G3</text>
-<text x="250" y="143" text-anchor="middle" class="sm">on a copy of the log</text>
-</g>
-<g class="a-tl-pause">
-<line x1="310" y1="42" x2="310" y2="196" class="s-muted" stroke-width="1.5" stroke-dasharray="3 3"/>
-<text x="310" y="36" text-anchor="middle" class="sm">pause at a step boundary</text>
-</g>
-<text x="316" y="96" class="sm t-new b a-tl-hand">conversation hands over</text>
-<rect x="310" y="112" width="160" height="16" rx="3" class="f-new fb ol a-tl-new"/>
-<line x1="100" y1="184" x2="470" y2="184" class="s-muted" stroke-width="2"/>
-<g fill-opacity=".6">
-<circle cx="115" cy="184" r="2.5" class="f-old"/><circle cx="135" cy="184" r="2.5" class="f-old"/><circle cx="155" cy="184" r="2.5" class="f-old"/><circle cx="175" cy="184" r="2.5" class="f-old"/><circle cx="195" cy="184" r="2.5" class="f-old"/><circle cx="215" cy="184" r="2.5" class="f-old"/><circle cx="235" cy="184" r="2.5" class="f-old"/><circle cx="255" cy="184" r="2.5" class="f-old"/><circle cx="275" cy="184" r="2.5" class="f-old"/><circle cx="295" cy="184" r="2.5" class="f-old"/>
-<circle cx="335" cy="184" r="2.5" class="f-new"/><circle cx="355" cy="184" r="2.5" class="f-new"/><circle cx="375" cy="184" r="2.5" class="f-new"/><circle cx="395" cy="184" r="2.5" class="f-new"/><circle cx="415" cy="184" r="2.5" class="f-new"/><circle cx="435" cy="184" r="2.5" class="f-new"/><circle cx="455" cy="184" r="2.5" class="f-new"/>
-</g>
-<circle cx="100" cy="184" r="6" class="f-old fb oc a-tl-pen"/>
-<text x="100" y="206" class="sm">one append-only log, one writer at a time</text>
-
-<line x1="8" y1="222" x2="472" y2="222" class="s-rule" stroke-width="1"/>
-<text x="8" y="242" class="b t-bad">if the new body crashes</text>
-<text x="8" y="266" class="b">old body</text>
-<text x="8" y="296" class="b">new body</text>
-<rect x="100" y="254" width="370" height="14" rx="3" class="f-old fb ol a-tl-old2"/>
-<rect x="130" y="284" width="100" height="14" rx="3" class="nofill s-new fb ol a-tl-build" stroke-width="1.5" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
-<rect x="232" y="284" width="40" height="14" rx="3" class="f-bad a-tl-probe" fill-opacity=".3"/>
-<g class="a-tl-x">
-<path d="M276 286 L286 296 M286 286 L276 296" class="s-bad" stroke-width="2.5" stroke-linecap="round"/>
-<text x="292" y="296" class="sm t-bad b">crashes in the probe</text>
-</g>
-<text x="100" y="322" class="sm a-tl-ok">the old body never stopped, so nothing happened</text>
+<svg class="viz" viewBox="0 0 400 290" role="img" aria-labelledby="v2t">
+<title id="v2t">Two cases of a core change. If the new body works: the old body keeps working while the new body is checked by gates G0 to G3 on the side; at a step boundary the old body exits and the new body takes over the same conversation log. If the new body crashes during its checks: the old body never stops, nothing changes, and the conversation goes on.</title>
+<text x="10" y="18" class="h t-new">If the new body works</text>
+<rect x="10" y="30" width="206" height="28" rx="4" class="f-old"/>
+<text x="20" y="49" class="b t-on">old body keeps working</text>
+<text x="228" y="49" class="mu">then exits</text>
+<rect x="40" y="68" width="172" height="28" rx="4" class="f-panel s-new w2 dash"/>
+<text x="50" y="87">checked by G0–G3</text>
+<rect x="224" y="68" width="166" height="28" rx="4" class="f-new"/>
+<text x="234" y="87" class="b t-on">new body takes over</text>
+<line x1="220" y1="26" x2="220" y2="122" class="s-fg w2 dash"/>
+<line x1="10" y1="114" x2="216" y2="114" class="s-old w4" stroke-linecap="round"/>
+<line x1="224" y1="114" x2="390" y2="114" class="s-new w4" stroke-linecap="round"/>
+<circle cx="14" cy="114" r="7" style="fill:var(--fg)"><animate attributeName="cx" values="14;386" keyTimes="0;1" dur="6s" repeatCount="indefinite"/></circle>
+<text x="10" y="140" class="mu">one conversation log, handed over at a step boundary</text>
+<line x1="10" y1="160" x2="390" y2="160" class="s-rule w2"/>
+<text x="10" y="186" class="h t-bad">If the new body crashes</text>
+<rect x="10" y="198" width="380" height="28" rx="4" class="f-old"/>
+<text x="20" y="217" class="b t-on">old body never stops</text>
+<rect x="40" y="236" width="172" height="28" rx="4" class="f-panel s-bad w2 dash"/>
+<text x="50" y="255" class="t-bad">crashes in its checks</text>
+<path d="M190,244 L202,256 M202,244 L190,256" class="s-bad w2 pulse" stroke-linecap="round"/>
+<text x="10" y="282" class="mu">nothing changes; the conversation goes on</text>
 </svg>
 <figcaption>The old body keeps working until the new one is ready, and a crash in the probe changes nothing.</figcaption>
 </figure>
@@ -555,38 +460,37 @@ details.txt summary { cursor: pointer; }
 <p>Before a core swap, a candidate climbs four mechanical gates (<a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/kernel/gate.md">gate.md</a>). G0 builds it and runs <code>clippy -D warnings</code> and the tests. G1 regenerates its self-map and fails on any drift. G2 boots it beside the current version and checks for a real tool round trip and an unchanged prompt prefix. G3 is the one I think matters most: a fresh copy of the candidate is told to edit its own source, regenerate its self-map and commit, and the kernel checks that commit and runs G0 to G2 on it. So a change that breaks the ability to change can't get in, which is the property the Darwin Gödel Machine work found essential.</p>
 
 <figure class="v">
-<svg class="viz" viewBox="0 0 480 230" role="img" aria-labelledby="v3t">
-<title id="v3t">A staircase of four gates. G0: it compiles, lints and passes tests. G1: its self-map matches. G2: it boots beside the old body. G3: the new version edits itself, commits, and that edit must pass G0 to G2 again.</title>
+<svg class="viz" viewBox="0 0 400 338" role="img" aria-labelledby="v3t">
+<title id="v3t">Four gates in order. G0: it builds, lints and passes its tests. G1: its self-map matches its code. G2: it boots beside the running version. G3: the new version edits itself, and that edit must pass G0 to G2. If all pass, it is hot-swapped in mid-conversation; if any fails, it stays a branch and nothing changes.</title>
 <defs>
-<marker id="hr-arr-new" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-new"/></marker>
+<marker id="v3arr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-new"/></marker>
+<marker id="v3arr-mu" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"/></marker>
 </defs>
-<text x="20" y="20" class="sm">a candidate climbs; if any step fails, it stays a branch</text>
-<line x1="10" y1="200" x2="470" y2="200" class="s-muted" stroke-width="1.5"/>
-<rect x="20" y="170" width="105" height="30" class="f-panel s-rule"/>
-<rect x="130" y="140" width="105" height="60" class="f-panel s-rule"/>
-<rect x="240" y="110" width="105" height="90" class="f-panel s-rule"/>
-<rect x="350" y="80" width="105" height="120" class="f-panel s-rule"/>
-<rect x="20" y="170" width="105" height="30" class="f-new" opacity=".25"/>
-<rect x="130" y="140" width="105" height="60" class="f-new a-gl-lit1" opacity=".25"/>
-<rect x="240" y="110" width="105" height="90" class="f-new a-gl-lit2" opacity=".25"/>
-<rect x="350" y="80" width="105" height="120" class="f-new a-gl-lit3" opacity=".3"/>
-<text x="72" y="132" text-anchor="middle" class="b">G0</text>
-<text x="72" y="146" text-anchor="middle" class="sm">compiles,</text>
-<text x="72" y="159" text-anchor="middle" class="sm">lints, tests</text>
-<text x="182" y="102" text-anchor="middle" class="b">G1</text>
-<text x="182" y="116" text-anchor="middle" class="sm">self-map</text>
-<text x="182" y="129" text-anchor="middle" class="sm">matches</text>
-<text x="292" y="72" text-anchor="middle" class="b">G2</text>
-<text x="292" y="86" text-anchor="middle" class="sm">boots beside</text>
-<text x="292" y="99" text-anchor="middle" class="sm">the old body</text>
-<text x="402" y="42" text-anchor="middle" class="b t-new">G3</text>
-<text x="402" y="56" text-anchor="middle" class="sm t-new b">the new version</text>
-<text x="402" y="69" text-anchor="middle" class="sm t-new b">edits itself</text>
-<g class="a-gl-spin" style="transform-box:view-box;transform-origin:402px 140px"><path d="M420 140 A18 18 0 1 1 411 124.4" class="nofill s-new" stroke-width="2.5" marker-end="url(#hr-arr-new)"/></g>
-<text x="402" y="144" text-anchor="middle" class="xs">self</text>
-<text x="402" y="178" text-anchor="middle" class="xs">edit · commit</text>
-<text x="402" y="191" text-anchor="middle" class="xs">inner G0–G2</text>
-<circle cx="72" cy="185" r="7" class="f-new a-gl-tok"/>
+<text x="10" y="20" class="mu">a candidate core must pass each check in order</text>
+<rect x="10" y="34" width="380" height="44" rx="8" class="f-panel s-rule w2"/>
+<rect x="22" y="43" width="46" height="26" rx="13" class="f-old"/>
+<text x="45" y="61" text-anchor="middle" class="b t-on">G0</text>
+<text x="82" y="61">builds, lints and passes its tests</text>
+<line x1="45" y1="80" x2="45" y2="90" class="s-mu w2" marker-end="url(#v3arr-mu)"/>
+<rect x="10" y="94" width="380" height="44" rx="8" class="f-panel s-rule w2"/>
+<rect x="22" y="103" width="46" height="26" rx="13" class="f-old"/>
+<text x="45" y="121" text-anchor="middle" class="b t-on">G1</text>
+<text x="82" y="121">its self-map matches its code</text>
+<line x1="45" y1="140" x2="45" y2="150" class="s-mu w2" marker-end="url(#v3arr-mu)"/>
+<rect x="10" y="154" width="380" height="44" rx="8" class="f-panel s-rule w2"/>
+<rect x="22" y="163" width="46" height="26" rx="13" class="f-old"/>
+<text x="45" y="181" text-anchor="middle" class="b t-on">G2</text>
+<text x="82" y="181">boots beside the running version</text>
+<line x1="45" y1="200" x2="45" y2="210" class="s-mu w2" marker-end="url(#v3arr-mu)"/>
+<rect x="10" y="214" width="380" height="62" rx="8" class="f-panel s-new w2"/>
+<rect x="22" y="232" width="46" height="26" rx="13" class="f-new"/>
+<text x="45" y="250" text-anchor="middle" class="b t-on">G3</text>
+<text x="82" y="240" class="b">the new version edits itself,</text>
+<text x="82" y="260">and that edit must pass G0–G2</text>
+<path d="M372,245 A12,12 0 1 1 366,234.6" class="f-none s-new w2" marker-end="url(#v3arr)"/>
+<rect x="7" y="31" width="386" height="50" rx="10" class="f-none s-fg w2"><animate attributeName="y" values="31;91;151;211" dur="6s" calcMode="discrete" repeatCount="indefinite"/><animate attributeName="height" values="50;50;50;68" dur="6s" calcMode="discrete" repeatCount="indefinite"/></rect>
+<text x="10" y="304" class="b t-new">✓ all pass: hot-swapped in mid-conversation</text>
+<text x="10" y="326" class="b t-bad">✕ any fails: it stays a branch, nothing changes</text>
 </svg>
 <figcaption>G3 makes the new version prove it can still change itself before it may replace the old one.</figcaption>
 </figure>
@@ -620,5 +524,6 @@ init        # first run: pick a provider and a model</code></pre>
 <p><a href="../">Home</a></p>
 </footer>
 </main>
+<script>if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('svg.viz').forEach(function (v) { if (v.pauseAnimations) v.pauseAnimations(); });</script>
 </body>
 </html>
