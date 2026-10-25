@@ -23,7 +23,7 @@
 </head>
 <!--
   INIT — view-source edition. Static: no framework, no tracker, no build step.
-  The home page is a sequence of visuals, one line each. The cell field in 01 is INIT's real body (seed/self.json).
+  The home page is a sequence of visuals, one line each. The cell field in 01 is INIT's real body (seed/self.json). 02 is a thought experiment, a toy model, labelled as such.
   Everything detailed — the real logs, the exhibits, the threat model — is in record.html. Press G for the 8 px grid.
 -->
 <body class="home">
@@ -34,6 +34,7 @@
     <span class="nver m" id="nver">v0.3.3-preview</span>
     <nav class="links" id="links">
       <a href="#body">Body</a>
+      <a href="#experiment">Experiment</a>
       <a href="#vision">Potential</a>
       <a href="#how">How</a>
       <a href="#trust">Undo</a>
@@ -89,9 +90,34 @@
   </div>
 </div></section>
 
-<!-- ═══════════════ 02 POTENTIAL ═══════════════ -->
+<!-- ═══════════════ 02 THOUGHT EXPERIMENT ═══════════════ -->
+<section class="sec" id="experiment"><div class="wrap">
+  <div class="sh"><span class="plus">+</span><span class="no">02</span><span>THOUGHT EXPERIMENT</span><span class="rule"></span><span class="coord"></span></div>
+  <h2 class="reveal xp-h">A fixed harness pays for each friction every day. <span class="g">INIT pays once.</span></h2>
+  <div class="xp plate reveal" id="xpbox">
+    <span class="tag m">thought experiment · illustrative, not measured</span>
+    <div class="lbl xp-lbl">Same model · 21 days · moving a 2M-line monorepo off its build DSL</div>
+    <div class="xp-fig" id="xpfig">
+      <div class="xp-rail" id="xprail"></div>
+      <svg id="xp" role="img" aria-label="Toy model over 21 days. Top lane: a fixed harness pays each friction again every day. Bottom lane: INIT pays once to change itself, a bad change is rolled back by the Root, and with a stronger model it does more. Below: useful work so far; the gap widens."></svg>
+    </div>
+    <div class="xp-legend"><span><i class="w"></i>useful work</span><span><i class="f"></i>friction, paid again</span><span><i class="c"></i>changing itself</span><span><i class="k"></i>kept</span><span><i class="h"></i>rolled back</span></div>
+    <div class="xp-read" id="xpread">&nbsp;</div>
+    <div class="xp-ctl">
+      <button class="xp-btn m" id="xpplay" type="button">▶ play</button>
+      <input type="range" id="xpday" min="1" max="21" value="21" aria-label="Day">
+      <b id="xpdayv">day 21</b>
+      <span class="xp-sep"></span>
+      <span>surprises nobody planned for</span>
+      <input type="range" id="xpsur" min="0" max="4" value="2" aria-label="Surprises nobody planned for">
+      <b id="xpsurv">2</b>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═══════════════ 03 POTENTIAL ═══════════════ -->
 <section class="sec" id="vision"><div class="wrap">
-  <div class="sh"><span class="plus">+</span><span class="no">02</span><span>THE POTENTIAL</span><span class="rule"></span><span class="coord"></span></div>
+  <div class="sh"><span class="plus">+</span><span class="no">03</span><span>THE POTENTIAL</span><span class="rule"></span><span class="coord"></span></div>
   <h2 class="reveal">Every fixed harness <span class="g">becomes a ceiling.</span></h2>
   <p class="lead reveal">A hand-drawn frame caps a growing model. INIT's model redraws its own.</p>
   <div class="twobox plate reveal" id="twobox">
@@ -105,9 +131,9 @@
   <p class="notyet reveal"><i></i><b>Not shown yet:</b> that it makes today's models better. <a href="record.html#limits">What is shown →</a></p>
 </div></section>
 
-<!-- ═══════════════ 03 HOW ═══════════════ -->
+<!-- ═══════════════ 04 HOW ═══════════════ -->
 <section class="sec" id="how"><div class="wrap">
-  <div class="sh"><span class="plus">+</span><span class="no">03</span><span>HOW IT WORKS</span><span class="rule"></span><span class="coord"></span></div>
+  <div class="sh"><span class="plus">+</span><span class="no">04</span><span>HOW IT WORKS</span><span class="rule"></span><span class="coord"></span></div>
   <h2 class="reveal">A new core, <span class="g">same conversation.</span></h2>
 
   <div class="story">
@@ -147,9 +173,9 @@
   </div>
 </div></section>
 
-<!-- ═══════════════ 04 TRUST / UNDO ═══════════════ -->
+<!-- ═══════════════ 05 TRUST / UNDO ═══════════════ -->
 <section class="sec" id="trust"><div class="wrap">
-  <div class="sh"><span class="plus">+</span><span class="no">04</span><span>EVERY CHANGE CAN BE UNDONE</span><span class="rule"></span><span class="coord"></span></div>
+  <div class="sh"><span class="plus">+</span><span class="no">05</span><span>EVERY CHANGE CAN BE UNDONE</span><span class="rule"></span><span class="coord"></span></div>
   <h2 class="reveal">Freedom, <span class="g">with an undo button.</span></h2>
 
   <div class="tb reveal">
@@ -167,9 +193,9 @@
   </div>
 </div></section>
 
-<!-- ═══════════════ 05 RECORD (night) ═══════════════ -->
+<!-- ═══════════════ 06 RECORD (night) ═══════════════ -->
 <section class="sec night" id="record"><div class="wrap">
-  <div class="sh"><span class="plus">+</span><span class="no">05</span><span>THE NUMBERS</span><span class="rule"></span><span class="coord"></span></div>
+  <div class="sh"><span class="plus">+</span><span class="no">06</span><span>THE NUMBERS</span><span class="rule"></span><span class="coord"></span></div>
   <div class="rec-open">
     <div class="ro-l reveal"><h2>Seeing is believing. <span class="g">Each number links to its log.</span></h2></div>
     <div class="nums reveal">
@@ -199,9 +225,9 @@
   </div>
 </div></section>
 
-<!-- ═══════════════ 06 TRY ═══════════════ -->
+<!-- ═══════════════ 07 TRY ═══════════════ -->
 <section class="sec" id="try"><div class="wrap">
-  <div class="sh"><span class="plus">+</span><span class="no">06</span><span>TRY IT</span><span class="rule"></span><span class="coord"></span></div>
+  <div class="sh"><span class="plus">+</span><span class="no">07</span><span>TRY IT</span><span class="rule"></span><span class="coord"></span></div>
   <div class="tryrow">
     <div>
       <h2 class="reveal">One line to install.</h2>
@@ -232,7 +258,7 @@
 </footer>
 
 <div class="gridov" id="gridov" aria-hidden="true"></div>
-<div class="keys plate" id="keys" role="dialog" aria-label="Keyboard shortcuts"><span class="lbl">Keys</span><ul><li><kbd>G</kbd> 8 px grid</li><li><kbd>1</kbd>–<kbd>6</kbd> jump to section</li><li><kbd>?</kbd> this panel</li><li><kbd>Esc</kbd> close</li></ul></div>
+<div class="keys plate" id="keys" role="dialog" aria-label="Keyboard shortcuts"><span class="lbl">Keys</span><ul><li><kbd>G</kbd> 8 px grid</li><li><kbd>1</kbd>–<kbd>7</kbd> jump to section</li><li><kbd>?</kbd> this panel</li><li><kbd>Esc</kbd> close</li></ul></div>
 
 <script src="site.js"></script>
 </body>

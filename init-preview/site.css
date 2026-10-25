@@ -863,3 +863,52 @@ details.note p{font-size:14px;color:var(--dim);margin-top:6px}
 .rstage .replay{height:520px;min-height:0}
 .rhero .rstage h1{font-size:clamp(38px,4.2vw,60px);max-width:13ch}
 @media (max-width:1000px){.rstage{grid-template-columns:1fr;gap:36px}.rstage .replay{height:460px}}
+/* ── r9 · 02 thought experiment: same model, two harnesses, 21 days ── */
+.xp-h{max-width:21ch}
+.xp{margin-top:48px;padding:40px 28px 20px}
+.xp-lbl{display:block;margin-bottom:14px}
+.xp-fig{position:relative;padding-top:26px}
+.xp-rail{position:absolute;left:0;right:0;top:0;height:18px}
+.xp-rail button{position:absolute;top:0;width:18px;height:18px;transform:translateX(-50%);padding:0;font:400 10px/16px var(--mono);text-align:center;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);transition:background var(--t-flip),color var(--t-flip),opacity var(--t-flip)}
+.xp-rail button.x{border-style:dashed;color:var(--dim)}
+.xp-rail button.h{color:var(--harm);border-color:var(--harm)}
+.xp-rail button:hover,.xp-rail button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.xp-rail button.h:hover,.xp-rail button.h.on{background:var(--harm);border-color:var(--harm)}
+.xp-rail button.fut{opacity:.3}
+#xp{display:block;width:100%;overflow:visible}
+#xp text{font-family:var(--mono);font-variant-numeric:tabular-nums}
+#xp .new{animation:xpin var(--t-flip) steps(2,end)}
+@keyframes xpin{from{opacity:0}}
+.xp-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font:400 10.5px/1 var(--mono);color:var(--mute)}
+.xp-legend i{display:inline-block;width:9px;height:9px;margin-right:6px;vertical-align:-1px;background:var(--ink)}
+.xp-legend i.f{background:linear-gradient(to top right,transparent calc(50% - .6px),var(--mute) 50%,transparent calc(50% + .6px));box-shadow:inset 0 0 0 1px var(--mute)}
+.xp-legend i.c{background:none;box-shadow:inset 0 0 0 1.4px var(--rewrite)}
+.xp-legend i.k{background:var(--pass)}
+.xp-legend i.h{background:var(--harm)}
+.xp-read{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line-2);font:400 12.5px/1.55 var(--mono);color:var(--dim);min-height:3.2em}
+.xp-read .r{color:var(--mute)}
+.xp-read b{color:var(--ink);font-weight:400}
+.xp-read .hm{color:var(--harm)}
+.xp-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:10px}
+.xp-ctl span{font:400 11px/1 var(--mono);color:var(--mute);white-space:nowrap}
+.xp-ctl b{font:400 11px/1 var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.xp-ctl #xpday{flex:2 1 160px}
+.xp-ctl #xpsur{flex:1 1 90px;max-width:160px}
+.xp-ctl .xp-sep{width:1px;height:16px;background:var(--line-2);margin:0 6px}
+.xp-btn{font:400 11px/1 var(--mono);color:var(--ink);border:1px solid var(--line-2);background:var(--surface);padding:7px 10px;white-space:nowrap;min-width:9ch;text-align:left}
+.xp-btn:hover{border-color:var(--ink)}
+@media (max-width:760px){
+  .xp{padding:40px 16px 16px}
+  .xp-rail button{width:13px;height:14px;font-size:8.5px;line-height:12px}
+  .xp-fig{padding-top:22px}
+  .xp-read{min-height:4.7em;font-size:12px}
+  .xp-ctl .xp-sep{flex-basis:100%;height:0;margin:0}
+  .xp-ctl #xpsur{max-width:none}
+  .xp-ctl #xpday{flex:1 1 80px}
+}
+/* nav: eight links must stay on one line */
+.nav .links a,.nav .nver{white-space:nowrap}
+.nav .links a{padding:0;display:block}  /* not the record page's .links grid */
+.nav .links{gap:28px;margin-right:28px}
+@media (max-width:1100px){.nav .links{gap:18px;margin-right:18px}}
+@media (max-width:960px){.nav .nver{display:none}}

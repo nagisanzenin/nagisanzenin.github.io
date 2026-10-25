@@ -210,6 +210,149 @@
     }, 60);
   })();
 
+  // ── 02 thought experiment: same model, two harnesses, 21 days ──
+  // A toy model, not data (the figure says so). One cell = one unit of the same model's work in a day.
+  // Fixed harness: pays every friction it has met, every day, until the vendor ships a fix.
+  // INIT: pays a friction once, plus the cost of changing itself, and keeps the gain; one bad change is rolled back.
+  (() => {
+    const fig = $('#xpfig'), svg = $('#xp'); if (!fig || !svg) return;
+    const rail = $('#xprail'), read = $('#xpread'), btn = $('#xpplay'), scrub = $('#xpday'), dayv = $('#xpdayv'), sur = $('#xpsur'), surv = $('#xpsurv');
+    const N = 21, ROWS = 10, EXTRA = [7, 15, 10, 19], DIP = 9, NEWM = 12;
+    const BASE = [
+      {d: 2, fix: 1, g: '◇', t: "grep can't parse the DSL", r: 'lives with the noise', i: 'writes a tool that can'},
+      {d: 3, fix: 2, g: '◇', t: 'compaction drops type signatures', r: 're-reads 40 files each session', i: 'rewrites its compaction'},
+      {d: 5, fix: 1, vendor: 18, g: '◇', t: 'a sub-task wants a fresh context', r: 'waits for the vendor', i: 'writes a delegation tool'}];
+    const OTHER = [
+      {d: 9, h: 1, g: '✕', t: 'one of its changes makes things worse', r: "can't change itself", i: 'the Root rolls it back'},
+      {d: NEWM, g: '●', t: 'a stronger model ships', r: 'same harness around it', i: 'rewrites more of its harness'},
+      {d: 18, g: '↳', t: 'the vendor ships sub-agents', r: 'one friction gone', i: 'had its own since day 5'}];
+    function build(k) {
+      const fr = BASE.concat(EXTRA.slice(0, k).map(d => ({d, fix: 1, x: 1, g: '◇', t: "something its makers didn't plan for", r: 'pays for it every day', i: 'pays once'})));
+      const R = [], I = [], cR = [0], cI = [0];
+      for (let d = 1; d <= N; d++) {
+        const capR = d >= NEWM ? 8 : 7, capI = d >= NEWM ? 10 : 7;
+        const paid = fr.filter(f => f.d <= d && !(f.vendor && d >= f.vendor)).length;
+        R.push({work: capR - paid, kept: d === 18 ? 1 : 0, rw: 0, harm: 0, fric: paid});
+        const met = fr.filter(f => f.d === d), harm = d === 9 ? 3 : 0;
+        const rw = met.reduce((s, f) => s + f.fix, 0) + (d === 8 ? 1 : 0) + (d === NEWM ? 2 : 0);
+        const kept = fr.filter(f => f.d === d - 1).length + (d === NEWM + 1 ? 2 : 0);
+        I.push({work: capI - met.length - rw - harm, kept, rw, harm, fric: met.length});
+        cR.push(cR[d - 1] + R[d - 1].work); cI.push(cI[d - 1] + I[d - 1].work);
+      }
+      return {R, I, cR, cI, ev: fr.concat(OTHER).sort((a, b) => a.d - b.d)};
+    }
+    const YM = build(0).cI[N] * 1.06;
+    let k = +sur.value, M = build(k), L, day = reduce ? N : 1, hover = null, timer = 0, playing = false, touched = false;
+    function geom() {
+      const W = fig.clientWidth, nar = W < 640, gut = nar ? 30 : 50, PW = W - gut, p = PW / N;
+      const per = p >= 40 ? 2 : 1, dg = nar ? 3 : 9, cg = nar ? 2 : 3;
+      const cs = Math.min((p - dg - (per - 1) * cg) / per, per === 1 ? 14 : 22), step = cs + cg, lh = ROWS / per * step - cg;
+      const y1 = 18, y2 = y1 + lh + 38, y3 = y2 + lh + 46, ch = nar ? 130 : 170;
+      return {W, nar, gut, PW, p, per, dg, cg, cs, step, lh, y1, y2, y3, ch, H: y3 + ch + 24, fs: nar ? 9.5 : 10.5};
+    }
+    const T = (x, y, s, a = {}) => mk(svg, 'text', Object.assign({x, y, 'font-size': L.fs, fill: C.mute}, a), s);
+    const LB = (x, y, s, a = {}) => T(x, y, s, Object.assign({'font-weight': 500, 'letter-spacing': '.08em'}, a));
+    function lane(arr, top) {
+      const bot = top + L.lh, s = L.cs;
+      for (let d = 1; d <= N; d++) {
+        const c = arr[d - 1], seq = [], x0 = (d - .5) * L.p - (L.per * L.step - L.cg) / 2;
+        if (d <= day) {
+          for (let j = 0; j < c.work; j++) seq.push(j >= c.work - c.kept ? 'k' : 'w');
+          for (let j = 0; j < c.rw; j++) seq.push('c');
+          for (let j = 0; j < c.harm; j++) seq.push('h');
+          for (let j = 0; j < c.fric; j++) seq.push('f');
+        } else for (let j = 0; j < ROWS; j++) seq.push('e');
+        const g = mk(svg, 'g', d === day && playing ? {class: 'new'} : {});
+        seq.forEach((t, j) => {
+          const x = x0 + (j % L.per) * L.step, y = bot - (Math.floor(j / L.per) + 1) * L.step + L.cg;
+          if (t === 'c') mk(g, 'rect', {x: x + s * .1 + .6, y: y + s * .1 + .6, width: s * .8 - 1.2, height: s * .8 - 1.2, fill: 'none', stroke: C.rw, 'stroke-width': 1.2});
+          else if (t === 'f') { mk(g, 'rect', {x: x + .5, y: y + .5, width: s - 1, height: s - 1, fill: 'none', stroke: C.mute, 'stroke-width': 1}); mk(g, 'line', {x1: x + .5, y1: y + s - .5, x2: x + s - .5, y2: y + .5, stroke: C.mute, 'stroke-width': 1}); }
+          else mk(g, 'rect', {x, y, width: s, height: s, fill: {w: C.ink, k: C.pass, h: C.harm, e: C.tile}[t]});
+        });
+      }
+    }
+    function draw() {
+      svg.innerHTML = '';
+      svg.setAttribute('viewBox', `0 0 ${L.W} ${L.H}`); svg.setAttribute('height', L.H);
+      // lanes: the fixed harness on a plain hairline; INIT on the Root line (static, never animated)
+      LB(0, L.y1 - 8, L.nar ? "FIXED · CAN'T CHANGE ITSELF" : "FIXED HARNESS · CAN'T CHANGE ITSELF");
+      lane(M.R, L.y1);
+      mk(svg, 'line', {x1: 0, x2: L.PW, y1: L.y1 + L.lh + 3.5, y2: L.y1 + L.lh + 3.5, stroke: C.line2});
+      LB(0, L.y2 - 8, 'INIT · CHANGES ITSELF', {fill: C.ink});
+      lane(M.I, L.y2);
+      mk(svg, 'rect', {x: 0, y: L.y2 + L.lh + 3, width: L.PW, height: 2, fill: C.root});
+      LB(L.PW + 6, L.y2 + L.lh + 6.5, 'ROOT', {'font-size': L.fs - 1.5});
+      // useful work so far
+      const X = d => d * L.p, Y = v => L.y3 + L.ch - v / YM * L.ch, D = day;
+      LB(0, L.y3 - 10, 'USEFUL WORK, SO FAR');
+      mk(svg, 'line', {x1: 0, x2: L.PW, y1: Y(0) + .5, y2: Y(0) + .5, stroke: C.line2});
+      [[1, 'day 1', 'start', 0], [7, '7', 'middle'], [14, '14', 'middle'], [21, '21', 'end']].forEach(([d, s, a, x]) => {
+        const xx = x === 0 ? 0 : X(d) - (d === 21 ? 0 : L.p / 2);
+        mk(svg, 'line', {x1: X(d) - L.p / 2, x2: X(d) - L.p / 2, y1: Y(0), y2: Y(0) + 4, stroke: C.line2});
+        T(xx, Y(0) + 16, s, {'text-anchor': a});
+      });
+      const line = (pts, a) => mk(svg, 'polyline', Object.assign({points: pts.map(q => q.join(',')).join(' '), fill: 'none', 'stroke-linejoin': 'round'}, a));
+      line(M.cR.slice(0, D + 1).map((v, d) => [X(d), Y(v)]), {stroke: C.mute, 'stroke-width': 1.5});
+      const pi = [];
+      M.cI.slice(0, D + 1).forEach((v, d) => {
+        if (d === 9) { const xd = X(8.45); pi.push([xd, Y(M.cI[8] - 8)], [xd, Y(M.cI[8])]); }
+        pi.push([X(d), Y(v)]);
+      });
+      line(pi, {stroke: C.ink, 'stroke-width': 1.75});
+      if (D >= 9) {   // the bad change: a dip, then the Root's rollback snaps it back
+        const xd = X(8.45), yb = Y(M.cI[8] - 8);
+        line([[X(8), Y(M.cI[8])], [xd, yb]], {stroke: C.harm, 'stroke-width': 2});
+        mk(svg, 'rect', {x: xd - 2.5, y: yb - 1, width: 5, height: 5, fill: C.harm});
+      }
+      const xe = X(D), yi = Y(M.cI[D]), yr = Y(M.cR[D]), far = xe > 150;
+      T(far ? xe - 6 : xe + 6, yi - 9, 'INIT', {'text-anchor': far ? 'end' : 'start', fill: C.ink, 'font-weight': 500});
+      T(far ? xe - 6 : xe + 6, Math.max(yr + 16, yi + 10), L.nar ? 'fixed' : 'fixed harness', {'text-anchor': far ? 'end' : 'start'});
+      if (yr - yi > 12) {   // dimension line: the gap
+        const gx = xe + (L.nar ? 9 : 14);
+        mk(svg, 'line', {x1: gx, x2: gx, y1: yi, y2: yr, stroke: C.dim, 'stroke-width': .8});
+        [yi, yr].forEach(y => mk(svg, 'line', {x1: gx - 3, x2: gx + 3, y1: y, y2: y, stroke: C.dim, 'stroke-width': .8}));
+        T(gx + 5, (yi + yr) / 2 + 3.5, 'gap', {fill: C.ink});
+      }
+      // a hovered event: its day, through every lane
+      const fe = hover;
+      if (fe) { const gx = X(fe.d) - L.p / 2; mk(svg, 'line', {x1: gx, x2: gx, y1: 0, y2: Y(0), stroke: fe.h ? C.harm : C.ink, 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: .55}); }
+      $$('button', rail).forEach((b, i) => { b.classList.toggle('fut', M.ev[i].d > day); b.classList.toggle('on', M.ev[i] === hover); });
+      say(); scrub.value = day; dayv.textContent = `day ${pad(day, 2)} / ${N}`;
+    }
+    function say() {
+      const e = hover || [...M.ev].reverse().find(v => v.d <= day), dd = `day ${pad(hover ? hover.d : day, 2)} · `;
+      if (!hover && day === N) read.innerHTML = `${dd}frictions still paid daily: <span class="r">fixed harness ${M.R[N - 1].fric}</span> · <b>INIT 0</b>`;
+      else if (!e) read.innerHTML = `${dd}same model, same task`;
+      else read.innerHTML = `${dd}${e.h ? '<span class="hm">✕</span> ' : ''}${e.t} → <span class="r">fixed: ${e.r}</span> · <b>INIT: ${e.i}</b>`;
+    }
+    function rails() {
+      rail.innerHTML = '';
+      M.ev.forEach(e => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = (e.h ? 'h' : '') + (e.x ? ' x' : ''); b.textContent = e.g;
+        b.style.left = ((e.d - .5) * L.p) + 'px'; b.setAttribute('aria-label', `day ${e.d}: ${e.t}`);
+        const on = () => { hover = e; draw(); }, off = () => { if (hover === e) { hover = null; draw(); } };
+        b.addEventListener('mouseenter', on); b.addEventListener('focus', on);
+        b.addEventListener('mouseleave', off); b.addEventListener('blur', off);
+        b.addEventListener('click', () => { stop(); day = e.d; hover = e; draw(); });
+        rail.appendChild(b);
+      });
+    }
+    const wait = d => M.ev.some(e => e.d === d) ? 1200 : 300;
+    function stop() { clearTimeout(timer); playing = false; btn.textContent = day >= N ? '↺ replay' : '▶ play'; }
+    function tick() { if (day >= N) { stop(); draw(); return; } day++; draw(); timer = setTimeout(tick, wait(day)); }
+    function start() { if (day >= N) day = 1; playing = true; btn.textContent = '❚❚ pause'; hover = null; draw(); timer = setTimeout(tick, wait(day)); }
+    fig.parentNode.addEventListener('pointerdown', () => touched = true); fig.parentNode.addEventListener('keydown', () => touched = true);
+    btn.addEventListener('click', () => playing ? stop() : start());
+    scrub.addEventListener('input', () => { stop(); day = +scrub.value; draw(); });
+    sur.addEventListener('input', () => { k = +sur.value; surv.textContent = k; M = build(k); hover = null; rails(); draw(); });
+    let lw = 0;
+    const relayout = () => { const w = fig.clientWidth; if (!w || w === lw) return; lw = w; L = geom(); rails(); draw(); };
+    L = geom(); lw = fig.clientWidth; rails(); draw(); stop();
+    new ResizeObserver(relayout).observe(fig);
+    if (!reduce) onView([fig], () => { if (!touched) start(); }, .4);
+  })();
+
   // ── 03 shape: the real body map ───────────────────
   (async () => {
     const grid = $('#bmgrid'); if (!grid) return;
