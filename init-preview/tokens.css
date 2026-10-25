@@ -15,7 +15,7 @@
   /* text */
   --ink:      #111114;  /* primary text; the Body's cells */
   --dim:      #6C6C74;  /* secondary text */
-  --mute:     #9B9BA3;  /* labels, metadata, receipts */
+  --mute:     #82828A;  /* labels, metadata, receipts */
 
   /* the one fixed thing */
   --root:     #D9961F;  /* Root amber: lines and fills */

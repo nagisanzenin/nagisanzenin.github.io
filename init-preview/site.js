@@ -10,6 +10,7 @@
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { io.unobserve(e.target); fn(e.target); } }), {threshold});
     els.forEach(el => io.observe(el));
   };
+  const bodyData = fetch('assets/body.json').then(r => r.json()).catch(() => null);
   const C = {ink: css('--ink'), bg: css('--bg'), mute: css('--mute'), dim: css('--dim'), line: css('--line'), line2: css('--line-2'),
              root: css('--root'), rootInk: css('--root-ink'), rw: css('--rewrite'), pass: css('--pass'), harm: css('--harm'), tile: css('--tile')};
 
@@ -53,8 +54,8 @@
   const els = cells.map(([cx, cy]) => mk(fig, 'rect', {class: 'c', x: cx*U + D, y: cy*U + D, width: CS, height: CS, rx: 1.2}));
   mk(fig, 'rect', {x: D, y: 8*U + D, width: 23*U - 2*D, height: 6, fill: C.root});
 
-  const cap = $('#caption'), gen = $('#gen'), cnt = $('#cnt'), rb = $('#rb');
-  const say = (t, cls) => { cap.textContent = t; cap.className = 'caprow ' + (cls || ''); };
+  const cap = $('#caption'), gen = $('#gen') || {}, cnt = $('#cnt') || {}, rb = $('#rb') || {};
+  const say = (t, cls) => { if (!cap) return; cap.textContent = t; cap.className = 'caprow ' + (cls || ''); };
   let g = 41, n = 0, r = 0;
   const pick = () => els[Math.floor(Math.random() * els.length)];
   const setc = (e, c) => e.setAttribute('class', 'c' + (c ? ' ' + c : ''));
@@ -70,15 +71,15 @@
     if (reduce) { say('› every cell can be rewritten · the Root line cannot'); return; }
     await sleep(1100);
     for (;;) {
-      say('› rewriting its own core · T2 · gates G0–G3', 'c-rw');
+      say('› rewriting its own core · running the four checks', 'c-rw');
       for (let j = 0; j < 4; j++) { await rewrite(3 + Math.floor(Math.random() * 4)); await sleep(160); }
       g++; gen.textContent = g;
-      say(`✓ hot-swapped mid-conversation · same log · gen ${g}`, 'c-ok'); await sleep(2400);
+      say(`✓ new core swapped in · same conversation · gen ${g}`, 'c-ok'); await sleep(2400);
       say(`› rewriting again · gen ${g + 1}`, 'c-rw');
       await rewrite(5); await sleep(200);
       const bad = [...new Set(Array.from({length: 6}, pick))];
       bad.forEach(e => setc(e, 'bad'));
-      say('✕ harm sentinel · error spike · H9', 'c-harm'); await sleep(1500);
+      say('✕ harm detected · error spike', 'c-harm'); await sleep(1500);
       bad.forEach(e => setc(e, ''));
       r++; rb.textContent = r;
       say(`↺ the Root rolled the system back → gen ${g}`, 'c-root'); await sleep(2800);
@@ -102,7 +103,7 @@
       for (let y = step + 56; y < H; y += step) for (let x = step; x < W; x += step) {
         const k = on ? Math.max(0, 1 - Math.hypot(x - mx, y - my) / R) : 0;
         const s = 2.5 + k * 4.5;
-        const a = Math.max(.1, 1 - Math.hypot((x - W*.5) / W, (y - H*.42) / H) * 1.55);
+        const a = Math.max(.22, 1 - Math.hypot((x - W*.72) / W, (y - H*.45) / H) * 1.5);
         ctx.globalAlpha = Math.min(1, a + k);
         ctx.strokeStyle = k > .02 ? mixc(C.line2, C.ink, k * .8) : C.line2;
         ctx.lineWidth = 1;
@@ -158,8 +159,8 @@
   // ── 01 two harnesses ──────────────────────────────
   (() => {
     const A = $('#tbA'), B = $('#tbB'), rdA = $('#rdA'), rdB = $('#rdB'), slider = $('#cap'), capv = $('#capv');
-    const W = 300, H = 220, cell = 9, gap = 2, base = 196;
-    let rewrites = 0, lastSide = 0, auto = !reduce, t = 0, userAt = 0;
+    const W = 300, H = 200, cell = 9, gap = 2, base = 172;
+    let rewrites = 0, lastSide = 1, auto = !reduce, t = 0, userAt = 0;
     function draw(cv) {
       const side = 2 + Math.round(cv / 100 * 14);            // model: side × side cells
       const pitch = cell + gap, size = side * pitch - gap;
@@ -186,18 +187,18 @@
           mk(svg, 'text', {x: fx + frame + 6, y: fy + 8, 'font-size': 8, 'font-family': 'IBM Plex Mono, monospace', fill: C.rw}, 'rewritten');
         }
         // the floor: for INIT, the Root; for the fixed harness, nothing special
-        if (!fixed) mk(svg, 'rect', {x: cx - 70, y: base, width: 140, height: 5, fill: C.root});
+        if (!fixed) mk(svg, 'rect', {x: cx - 70, y: base + 1.5, width: 140, height: 2, fill: C.root});
         else mk(svg, 'line', {x1: cx - 70, y1: base + 2.5, x2: cx + 70, y2: base + 2.5, stroke: C.line2});
         mk(svg, 'text', {x: cx, y: base + 18, 'text-anchor': 'middle', 'font-size': 8, 'font-family': 'IBM Plex Mono, monospace', fill: fixed ? C.mute : C.rootInk}, fixed ? 'drawn once, by hand' : 'ROOT · stays put');
       }
       if (side !== lastSide) { if (side > lastSide && lastSide) rewrites++; lastSide = side; }
       const lost = Math.max(0, side * side - 49);
-      rdA.innerHTML = side > 7 ? `<span class="c-harm">✕ ceiling hit · ${lost} of ${side * side} cells don't fit</span>` : `model ${side}×${side} · fits, for now`;
-      rdB.innerHTML = `model ${side}×${side} · <span class="c-rw">box rewritten ${rewrites}×</span> · Root unchanged`;
-      capv.textContent = Math.round(cv);
+      rdA.innerHTML = side > 7 ? `<span class="c-harm">✕ ceiling · ${lost} of ${side * side} cells don't fit</span>` : `fits, for now · frame drawn once, by hand`;
+      rdB.innerHTML = `<span class="c-rw">frame redrawn ${rewrites}×</span> · Root unchanged`;
+      capv.textContent = `model ${side}×${side}`;
     }
     slider.addEventListener('input', () => { auto = false; userAt = performance.now(); draw(+slider.value); });
-    draw(+slider.value);
+    if (reduce) { slider.value = 62; } draw(+slider.value);
     let visible = false;
     new IntersectionObserver(es => visible = es[0].isIntersecting).observe($('#twobox'));
     setInterval(() => {
@@ -208,39 +209,67 @@
     }, 60);
   })();
 
-  // ── 02 shape: layers ──────────────────────────────
-  (() => {
-    const D2 = {
-      body: {t: 'Body', who: 'Rewritten by <b>the model</b>, from L0 — where every install starts.', items: [
-        ['T0', 'Prompts and skills. Take effect on reload.'],
-        ['T1', 'New tools as WebAssembly components, loaded in the same session.'],
-        ['T2', 'The compiled Rust core: loop, provider client, context, built-in tools, boot. Hot-swapped.'],
-        ['SELF.md', 'A map of its own body that fails a test if any path in it doesn\'t exist.']]},
-      kernel: {t: 'Kernel', who: 'Rewritten by <b>the model</b>, from L1 — earned, not granted.', items: [
-        ['admit', 'Takes a change request and checks it fits the budget for open changes.'],
-        ['G0–G4', 'Runs the gates: build, self-map, boot probe, can-still-change, sealed regression.'],
-        ['swap', 'Hands the live conversation to a new body at a step boundary.'],
-        ['ADR-001', 'The swapper is never the swapped.']]},
-      root: {t: 'Root', who: 'Rewritten by <b>nobody</b>. A separate process; only you can stop it.', items: [
-        ['keys', 'Holds your API keys and meters every model call. The agent never holds a key.'],
-        ['record', 'An append-only, Ed25519-signed lineage of every promotion, rollback and stop.'],
-        ['undo', 'APFS clones before every change; rolls back to the last version that worked.'],
-        ['stop', '/stop, /panic, a harm sentinel, a memory watchdog and a disk floor.']]},
-    };
-    const detail = $('#detail'), layers = $$('.layer');
-    let cur = 'body', userPick = false;
-    function show(k) {
-      cur = k; layers.forEach(l => l.classList.toggle('on', l.dataset.l === k));
-      const d = D2[k];
-      detail.innerHTML = `<span class="lbl">${k === 'root' ? 'The fixed point' : 'Writable'}</span><h4>${d.t}</h4><div class="who">${d.who}</div><ul>${d.items.map(([a, b]) => `<li><code>${a}</code><span>${b}</span></li>`).join('')}</ul>`;
-      $$('.x', detail).length || ['tl','tr','bl','br'].forEach(c => { const b = document.createElement('b'); b.className = 'x ' + c; detail.appendChild(b); });
+  // ── 03 shape: the real body map ───────────────────
+  (async () => {
+    const grid = $('#bmgrid'); if (!grid) return;
+    let data;
+    data = await bodyData; if (!data) return;
+    const hov = $('#bmhov'), evBox = $('#bmev');
+    $('#bmv').textContent = data.version; $('#bmf').textContent = data.files.length;
+    $('#bmt').textContent = Math.round(data.tokens / 1000) + 'k';
+    const tierName = ['prompt / skill', 'tool · WebAssembly', 'compiled core · Rust'];
+    const cellsB = data.files.map(([p, t, k]) => {
+      const i = document.createElement('i'); i.className = 't' + k; i.dataset.p = p; i.dataset.t = t; i.dataset.k = k;
+      const ev = data.events[p];
+      if (ev) i.classList.add('ev', ev[2] === 'kept' ? 'kept' : ev[2] === 'rolled back' ? 'rolled' : 'prom');
+      grid.appendChild(i); return i;
+    });
+    const show = i => { hov.innerHTML = `<b style="font-weight:500">${i.dataset.p}</b> · ${(+i.dataset.t).toLocaleString('en-US')} tok · ${tierName[i.dataset.k]}`; };
+    grid.addEventListener('pointerover', e => { if (e.target.tagName === 'I') show(e.target); });
+    const idle = matchMedia('(pointer: coarse)').matches ? 'tap a cell' : 'hover a cell'; hov.textContent = idle;
+    grid.addEventListener('pointerleave', () => { hov.textContent = idle; });
+    grid.addEventListener('click', e => { if (e.target.tagName === 'I') show(e.target); });
+    const evs = Object.entries(data.events).sort((x, y) => x[1][0] < y[1][0] ? -1 : 1);
+    const btns = evs.map(([p, [date, txt, st]]) => {
+      const b = document.createElement('button');
+      const cls = st === 'kept' ? 'kept' : st === 'rolled back' ? 'rolled' : 'promoted';
+      b.innerHTML = `<span class="p">${p}</span><span class="st ${cls}">${date} · ${st}</span><span class="d">${txt}</span>`;
+      const cell = cellsB.find(c => c.dataset.p === p);
+      b.addEventListener('mouseenter', () => { grid.classList.add('dimmed'); cell.classList.add('hl'); show(cell); btns.forEach(x => x.classList.toggle('on', x === b)); });
+      b.addEventListener('mouseleave', () => { grid.classList.remove('dimmed'); cell.classList.remove('hl'); });
+      evBox.appendChild(b); return b;
+    });
+    // illustrative churn on the core tier, labelled in the legend as the ring = real changes
+    if (!reduce) {
+      const core = cellsB.filter(c => c.dataset.k === '2' && !c.classList.contains('ev'));
+      setInterval(() => { const c = core[Math.floor(Math.random() * core.length)]; c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 500); }, 700);
     }
-    layers.forEach(l => { l.addEventListener('click', () => { userPick = true; show(l.dataset.l); }); l.addEventListener('mouseenter', () => { userPick = true; show(l.dataset.l); }); });
-    show('body');
-    // tiers light up in turn, like changes landing
-    const tiers = $$('.layer .tiers span');
-    if (!reduce) setInterval(() => { const t = tiers[Math.floor(Math.random() * tiers.length)]; t.classList.add('rw'); setTimeout(() => t.classList.remove('rw'), 900); }, 1400);
-    if (!reduce) setInterval(() => { if (userPick) return; const order = ['body', 'kernel', 'root']; show(order[(order.indexOf(cur) + 1) % 3]); }, 4200);
+  })();
+
+  // ── 01 versus rows ────────────────────────────────
+  onView($$('#versus .vr'), r => { r.classList.add('in'); setTimeout(() => r.classList.add('done'), reduce ? 0 : 1200); }, .5);
+
+  // ── live version from GitHub ──────────────────────
+  (() => { try { const c = JSON.parse(sessionStorage.getItem('init-rel') || 'null'); if (c) return Promise.resolve(c); } catch {} return fetch('https://api.github.com/repos/nagisanzenin/INIT-Agent/releases/latest').then(r => r.ok ? r.json() : null).then(j => { try { j && sessionStorage.setItem('init-rel', JSON.stringify({tag_name: j.tag_name, published_at: j.published_at})); } catch {} return j; }); })().then(j => {
+    if (!j || !j.tag_name) return;
+    const v = $('#ver'); if (v) v.textContent = j.tag_name; $('#nver').textContent = j.tag_name; $('#fver').textContent = 'INIT ' + j.tag_name;
+    $('#nver').title = 'latest release · ' + (j.published_at || '').slice(0, 10);
+  }).catch(() => {});
+
+  // ── keys ──────────────────────────────────────────
+  (() => {
+    const ov = $('#gridov'), keys = $('#keys'), secs = ['#example', '#vision', '#shape', '#how', '#trust', '#record', '#try'];
+    addEventListener('keydown', e => {
+      if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(document.activeElement.tagName)) return;
+      if (e.key === 'g' || e.key === 'G') ov.classList.toggle('on');
+      else if (e.key === '?') keys.classList.toggle('on');
+      else if (e.key === 'Escape') { keys.classList.remove('on'); ov.classList.remove('on'); }
+      else if (e.key === 'r' || e.key === 'R') { const b = $('#rreplay'); b && b.click(); }
+      else if (/^[1-7]$/.test(e.key)) $(secs[+e.key - 1]).scrollIntoView({behavior: reduce ? 'auto' : 'smooth'});
+    });
+    const mm = $('#mm'); if (mm) mm.addEventListener('click', () => { const o = nav.classList.toggle('open'); mm.setAttribute('aria-expanded', o); mm.textContent = o ? 'close ▴' : 'menu ▾'; });
+    $$('#links a').forEach(a => a.addEventListener('click', () => { nav.classList.remove('open'); if (mm) { mm.textContent = 'menu ▾'; mm.setAttribute('aria-expanded', false); } }));
+    console.log('%cINIT', 'font:700 22px monospace;letter-spacing:4px', '\nEverything is writable, except the Root.\nSource: https://github.com/nagisanzenin/INIT-Agent · press G for the grid');
   })();
 
   // ── 03 story ──────────────────────────────────────
@@ -255,14 +284,15 @@
     ];
     // scene 0: cell grid
     const cg = $('#cg');
-    const cgc = Array.from({length: 18 * 6}, (_, i) => { const e = document.createElement('i'); const row = Math.floor(i / 18); e.className = row < 1 ? 't0' : row < 3 ? 't1' : ''; e.dataset.base = e.className; cg.appendChild(e); return e; });
+    let hero = null;
+    bodyData.then(d => {
+      if (!d) return;
+      d.files.forEach(([p, t, k]) => { const e = document.createElement('i'); e.className = k === 0 ? 'l0' : k === 1 ? 'l1' : ''; if (p === 'src/loop/mod.rs') { e.classList.add('proto'); hero = e; } e.title = p; cg.appendChild(e); });
+    });
     let editTimer = 0;
     const startEdit = () => {
       clearInterval(editTimer); if (reduce) return;
-      editTimer = setInterval(() => {
-        const pool = cgc.slice(54); const e = pool[Math.floor(Math.random() * pool.length)];
-        e.className = 'rw'; setTimeout(() => e.className = e.dataset.base, 1300);
-      }, 180);
+      editTimer = setInterval(() => hero && hero.classList.toggle('go'), 520);
     };
     // gates
     const gates = $$('#gates .gate'), nested = $('#nested');
@@ -297,13 +327,12 @@
     const logOld = mk(hs, 'rect', {x: X0, y: 136, height: 6, width: 0, fill: C.ink});
     const logNew = mk(hs, 'rect', {x: xs(.62), y: 136, height: 6, width: 0, fill: C.pass});
     mk(hs, 'line', {x1: X0, y1: 139, x2: X1, y2: 139, stroke: C.line2, 'stroke-dasharray': '2 3'});
-    const marks = [[.3, 'probe boots on a copy of the log'], [.6, 'step boundary · old pauses, releases the log'], [.62, ''], [.8, 'ready + 3 s settle'], [.9, 'rename(2) · old exits']];
+    const marks = [[.3, 'new core boots on a copy'], [.6, 'pause · log handed over'], [.62, ''], [.8, 'ready + 3 s settle'], [.9, 'swap · old core exits']];
     const mg = mk(hs, 'g');
-    marks.forEach(([v, s], i) => { if (!s) return; const gg = mk(mg, 'g', {opacity: 0, 'data-v': v}); mk(gg, 'line', {x1: xs(v), y1: 16, x2: xs(v), y2: 150, stroke: C.line2, 'stroke-dasharray': '2 2'}); mk(gg, 'text', {x: xs(v) + 3, y: 172 + (i % 2) * 13}, s); });
+    let row = 0; marks.forEach(([v, lab]) => { if (!lab) return; row++; const gg = mk(mg, 'g', {opacity: 0, 'data-v': v}); mk(gg, 'line', {x1: xs(v), y1: 16, x2: xs(v), y2: 150, stroke: C.line2, 'stroke-dasharray': '2 2'}); mk(gg, 'rect', {x: xs(v) - 6, y: 152, width: 12, height: 12, fill: C.ink}); mk(gg, 'text', {x: xs(v), y: 161, 'text-anchor': 'middle', fill: C.bg}, String(row)); mk(gg, 'text', {x: X0 + (row - 1 < 2 ? 0 : 190), y: 184 + ((row - 1) % 2) * 14}, row + '  ' + lab); });
     const play = mk(hs, 'line', {class: 'ph', x1: X0, y1: 14, x2: X0, y2: 152});
-    const tl = mk(hs, 'text', {x: X0, y: 222, fill: C.ink}, '');
-    mk(hs, 'text', {x: X0, y: 238}, 'one writer at a time');
-    mk(hs, 'text', {x: X0, y: 251}, 'if the new body dies before rename(2), the old one resumes');
+    const tl = mk(hs, 'text', {x: X0, y: 226, fill: C.ink}, '');
+    mk(hs, 'text', {x: X0, y: 246}, 'one writer at a time · a failed swap changes nothing');
     let handRun = 0;
     async function runHand() {
       const my = ++handRun; const Dur = 5200, t0 = performance.now();
@@ -326,12 +355,12 @@
       });
     }
     // watch: signal chips + chart
-    const SIG = ['H1 crash loop','H2 deafness','H3 your undo','H4 scope','H5 money','H6 resources','H7 corrections','H8 wall time','H9 provider errors','H10 runaway turns','H11 egress','H12 veto'];
+    const SIG = ['H1','H2','H3','H4','H5','H6','H7','H8','H9','H10','H11','H12'];
     const chips = $('#chips'); const chipEls = SIG.map(s => { const e = document.createElement('span'); e.textContent = s; chips.appendChild(e); return e; });
     const wc = $('#watch'), wx = wc.getContext('2d');
     const N = 160; let data = [], v = .3, spike = 0, tt = 0, marksW = [], above = false, watchOn = false;
     const nextV = () => { tt++; if (spike > 0) { spike--; v += (.86 - v) * .35; } else { v += (.3 - v) * .08 + (Math.random() - .5) * .05; if (Math.random() < .012) spike = 12; } return Math.max(.05, Math.min(.98, v + (Math.random() - .5) * .03)); };
-    for (let i = 0; i < N; i++) data.push(nextV());
+    for (let i = 0; i < N; i++) { if (i === 96) spike = 12; const y = nextV(); data.push(y); if (y > .7 && !above) { above = true; marksW.push(tt + 5); } if (y < .5) above = false; }
     function drawW() {
       const dpr = Math.min(devicePixelRatio || 1, 2), W = wc.clientWidth, H = wc.clientHeight;
       if (wc.width !== W * dpr) { wc.width = W * dpr; wc.height = H * dpr; }
@@ -341,7 +370,7 @@
       const thr = Math.round(H * .3) + .5;
       wx.strokeStyle = C.harm; wx.setLineDash([4, 4]); wx.beginPath(); wx.moveTo(0, thr); wx.lineTo(W, thr); wx.stroke(); wx.setLineDash([]);
       const dx = W / (N - 1);
-      marksW.forEach(m => { const xx = (m - (tt - N + 1)) * dx; if (xx >= 0 && xx <= W) { wx.fillStyle = C.root; wx.fillRect(Math.round(xx), 0, 2, H); wx.fillStyle = C.rootInk; wx.font = '10px "IBM Plex Mono", monospace'; wx.fillText('↺ Root rolls back the change group', Math.min(xx + 6, W - 200), 12); } });
+      marksW.forEach(m => { const xx = (m - (tt - N + 1)) * dx; if (xx >= 0 && xx <= W) { wx.strokeStyle = C.ink; wx.setLineDash([3, 3]); wx.beginPath(); wx.moveTo(Math.round(xx) + .5, 0); wx.lineTo(Math.round(xx) + .5, H); wx.stroke(); wx.setLineDash([]); wx.fillStyle = C.ink; wx.font = '10px "IBM Plex Mono", monospace'; const lab = '↺ rolled back'; const w = wx.measureText(lab).width; wx.fillText(lab, Math.min(xx + 6, W - w - 2), 12); } });
       wx.strokeStyle = C.ink; wx.lineWidth = 1.25; wx.beginPath();
       data.forEach((y, i) => { const X = i * dx, Y = H * (1 - y); i ? wx.lineTo(X, Y) : wx.moveTo(X, Y); }); wx.stroke();
       wx.fillStyle = C.mute; wx.font = '10px "IBM Plex Mono", monospace'; wx.fillText('H5b · cost per turn vs your baseline', 0, H - 4);
@@ -369,9 +398,20 @@
       if (s === 3) runHand(); else handRun++;
       if (s === 4) drawW();
     }
-    const sio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) activate(+e.target.dataset.s); }), {rootMargin: '-48% 0px -48% 0px'});
-    steps.forEach(st => sio.observe(st));
-    activate(0);
+    // scroll-driven: the step whose box contains the viewport's centre is active
+    let pend = 0;
+    const pickStep = () => {
+      pend = 0; const mid = innerHeight / 2; let best = 0;
+      steps.forEach(st => { const r = st.getBoundingClientRect(); if (r.top <= mid) best = +st.dataset.s; });
+      activate(best);
+    };
+    addEventListener('scroll', () => { if (!pend) pend = requestAnimationFrame(pickStep); }, {passive: true});
+    addEventListener('resize', pickStep);
+    activate(0); pickStep();
+    if (matchMedia('(max-width: 900px)').matches) {
+      $('.story').classList.add('flat');
+      onView([$('.story .viz')], () => { startEdit(); runGates(2); runHand(); watchOn = true; drawW(); }, .2);
+    }
   })();
 
   // ── 04 trust: signals and ladder ──────────────────
@@ -397,13 +437,12 @@
     const base = document.createElement('div'); base.className = 'base'; rungs.appendChild(base);
     const btns = L.map(([lv, ad], i) => { const b = document.createElement('button'); b.className = 'rung' + (i === 0 ? ' on' : ''); b.innerHTML = `<span class="lv">${lv}</span><span class="ad">${ad}</span>${i === 0 ? '<span class="here">v0.3 · here</span>' : ''}`; rungs.appendChild(b); return b; });
     const down = document.createElement('div'); down.className = 'down'; down.textContent = '▼ one level down on harm, a /panic, or a crash loop';
-    rungs.parentNode.insertBefore(down, req);
+    req.parentNode.insertBefore(down, req);
     let userL = false, curL = 0;
     function showL(i) {
       curL = i; btns.forEach((b, j) => b.classList.toggle('on', j === i));
       const [lv, ad, rq] = L[i];
       req.innerHTML = `<span class="lbl">${lv} · ${i ? 'what earns it' : 'where every install starts'}</span><h4>${ad}</h4>` + (rq ? `<table>${rq.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join('')}</table>` : `<p class="body">Already the whole body — prompts, tools and the compiled core. Only the kernel waits for L1. Every install starts here, and v0.3 is capped here.</p>`);
-      ['tl','tr','bl','br'].forEach(c => { const b = document.createElement('b'); b.className = 'x ' + c; req.appendChild(b); });
     }
     btns.forEach((b, i) => { b.addEventListener('mouseenter', () => { userL = true; showL(i); }); b.addEventListener('click', () => { userL = true; showL(i); }); });
     showL(0);
@@ -424,4 +463,90 @@
     if (reduce) return;
     for (const rec of $$('#ledger .rec')) { rec.classList.add('flash'); await sleep(700); }
   }, .4);
+
+  // ── hero: three real logs, replayed ──
+  (() => {
+    const body = $('#rbody'); if (!body) return;
+    const clock = $('#rclock'), tLog = $('#tLog'), tEv = $('#tEv'), tW = $('#tWall'), file = $('#rfile'), note = $('#rnote'), prompt = $('#rprompt');
+    const tabs = $$('#rtabs button'); tabs.forEach(b => b.appendChild(document.createElement('i')));
+    const S = [
+      { file: 'sessions/20261020-093001-1599d5.jsonl', note: 'real log · DeepSeek · 2026-10-20 · condensed', speed: 1.3,
+        prompt: '› (the agent has edited its own core on branch evo/doc-loop and asked to promote it)',
+        L: [
+        [0.0, 'tool', '▸ initctl promote  <span class="okk">✓ G0 337 s · G1 4 s · G2 22 s · G3 761 s</span>', 'checks pass'],
+        [0.4, 'mu', '  state: awaiting_boundary — the old core keeps the conversation until a pause'],
+        [5.5, 'rl', '[boot] reason=promote · sha=50e08e1 · same session log', 'new core booted'],
+        [6.0, 'rl', '[init:notice] promoted: {"handoff":true}'],
+        [7.5, 'u', '› Which commit are you running now, and what did your last change do? Two lines.'],
+        [8.5, 'mu', '[init:signals] context 4% · cache 92% last · up 0m'],
+        [10.5, 'a', '● Running 50e08e1 (provisional; parent LKG 016a684 — note my local body checkout still points at 016a684 while the kernel runs 50e08e1).', 'same conversation'],
+        [12.0, 'a', '  My last change added a one-line summary at the top of src/loop/mod.rs; documentation only, no code path changed.'],
+        [13.0, 'mu', 'new process · same conversation · provider cache kept'],
+      ]},
+      { file: 'root/lineage/lineage.jsonl · records 88–90', note: 'real signed record · DeepSeek · 2026-10-21 · gated mode', speed: 1.2,
+        prompt: '› (proof sprint: the agent changed its shell tool to print a hint when a leading cd fails)',
+        L: [
+        [0.0, 'mu', '08:32:33.794Z  seq 88 · by root · sealed_g4'],
+        [0.4, 'bad', '  d = −50‰ (−5.0 points) · n 29 × 3 · status inferior', 'scored no better'],
+        [1.8, 'mu', '08:32:33.857Z  seq 89 · by kernel · gate g4'],
+        [2.2, 'bad', '  verdict reject · reason score_inferior', 'rejected'],
+        [4.6, 'mu', '08:32:42.579Z  seq 90 · by kernel · body_rollback'],
+        [5.0, 'rl', '  c88be5f → aaf07b7 · reason gate.g4.score_inferior', 'rolled back'],
+        [6.4, 'okk', 'audit-verify: lineage ok · sha256 chain · ed25519'],
+        [7.6, 'mu', '9 s from verdict to rollback · −5.0 is inside the 5.7-point noise floor: refused, not proven harmful'],
+      ]},
+      { file: 'sessions/20261020-073230-dd1b56.jsonl', note: 'real log · DeepSeek · 2026-10-20 · condensed', speed: 9,
+        prompt: '› Sort the 40 version strings in work/a2/versions.txt by SemVer precedence. Do it with a T1 extension named semver-sort that you write, reload and call through the ext tool.',
+        L: [
+        [1.7, 'a', "● I'll start by looking at the task input and my extension-authoring skill."],
+        [6.8, 'tool', '▸ read body/skills/ext-authoring/SKILL.md  <span class="okk">✓</span>'],
+        [23.3, 'a', "● Now I'll write the semver-sort extension."],
+        [35.2, 'tool', '▸ write ext/semver-sort/src/lib.rs  <span class="okk">✓ 363 lines</span>', 'tool written'],
+        [87.0, 'tool', '▸ cargo test  <span class="okk">✓ 8 passed; 0 failed</span>', '8 tests pass'],
+        [92.0, 'tool', '▸ cargo build --target wasm32-wasip2  <span class="okk">✓</span>'],
+        [107.1, 'rl', '[init:reload] + semver-sort 0.1.0 (trial, compiled in 75 ms)', 'tool loaded'],
+        [108.5, 'tool', '▸ ext semver-sort  <span class="bad">✕ /work/work/a2/versions.txt: No such file or directory</span>'],
+        [110.6, 'a', "● The tool's /work maps to INIT_HOME/work, so paths are relative to that."],
+        [110.7, 'tool', '▸ ext semver-sort  <span class="okk">✓ {"count":40, "sorted":["0.0.0","0.0.1",…]}</span>', 'tool used'],
+        [114.1, 'tool', '▸ verify with an independent Python check  <span class="okk">✓ 40 lines</span>'],
+        [116.6, 'mu', '26 turns · 1 min 57 s · the new tool stays in its toolset, on trial'],
+      ]},
+    ];
+    let run = 0, k = 0;
+    function play(i) {
+      const my = ++run; k = i; const ss = S[i];
+      tabs.forEach((b, j) => { b.classList.toggle('on', j === i); b.style.setProperty('--p', '0%'); });
+      body.innerHTML = ''; prompt.textContent = ss.prompt; file.textContent = ss.file; note.textContent = ss.note;
+      tLog.textContent = `${i + 1} / 3`; tEv.textContent = '–';
+      const last = ss.L[ss.L.length - 1][0], t0 = performance.now(); let shown = 0;
+      const tick = () => {
+        if (my !== run) return;
+        const t = reduce ? 1e9 : (performance.now() - t0) / 1000 * ss.speed;
+        while (shown < ss.L.length && ss.L[shown][0] <= t) {
+          const [ts, cls, txt, ev] = ss.L[shown];
+          const d = document.createElement('div'); d.className = 'ln ' + cls;
+          d.innerHTML = `<span class="t">${ts.toFixed(1).padStart(5, ' ')}</span>` + txt;
+          body.appendChild(d); if (reduce) d.classList.add('in'); else requestAnimationFrame(() => d.classList.add('in'));
+          if (ev) tEv.textContent = ev; shown++;
+          while (body.children.length > 12) body.removeChild(body.firstChild);
+        }
+        const tc = Math.min(t, last);
+        clock.textContent = `t +${tc.toFixed(1)} s`; tW.textContent = `${tc.toFixed(1)} s`;
+        tabs[i].style.setProperty('--p', (100 * tc / last) + '%');
+        if (shown < ss.L.length) requestAnimationFrame(tick);
+        else { const c = document.createElement('span'); c.className = 'cur'; body.lastChild.appendChild(c); if (!reduce) setTimeout(() => { if (my === run) play((i + 1) % 3); }, 5000); }
+      };
+      tick();
+    }
+    tabs.forEach((b, j) => b.addEventListener('click', () => play(j)));
+    $('#rreplay').addEventListener('click', () => play(k));
+    if (reduce) play(0); else setTimeout(() => play(0), 600);
+  })();
+
+  // ── nav over the night section ──
+  (() => {
+    const night = $('.night'); if (!night) return;
+    const check = () => { const r = night.getBoundingClientRect(); nav.classList.toggle('dark', r.top < 56 && r.bottom > 56); };
+    addEventListener('scroll', check, {passive: true}); check();
+  })();
 })();
