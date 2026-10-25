@@ -32,7 +32,7 @@
   const U = 10, CS = 8.4, D = .8;
 
   // ── hero figure ───────────────────────────────────
-  const fig = $('#fig');
+  const fig = $('#fig'); if (fig) {
   const ann = mk(fig, 'g', {class: 'ann'});
   mk(ann, 'line', {class: 'dl', x1: 0, y1: -14, x2: 230, y2: -14});
   [0, 230].forEach(x => mk(ann, 'line', {class: 'dl', x1: x, y1: -17, x2: x, y2: -11}));
@@ -85,6 +85,7 @@
       say(`↺ the Root rolled the system back → gen ${g}`, 'c-root'); await sleep(2800);
     }
   })();
+  }
 
   // ── cross field ───────────────────────────────────
   function mixc(a, b, t) {
@@ -92,7 +93,7 @@
     const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`;
   }
   (() => {
-    const host = $('.hero'), canvas = $('#field'), ctx = canvas.getContext('2d'), step = 32, R = 190;
+    const host = $('.hero'), canvas = $('#field'); if (!host || !canvas) return; const ctx = canvas.getContext('2d'), step = 32, R = 190;
     let W = 0, H = 0, mx = -1e4, my = -1e4, tx = -1e4, ty = -1e4, raf = 0;
     const px = $('#px'), py = $('#py');
     function size() { const dpr = Math.min(devicePixelRatio || 1, 2); W = host.clientWidth; H = host.clientHeight; canvas.width = W*dpr; canvas.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); draw(); }
@@ -158,7 +159,7 @@
 
   // ── 01 two harnesses ──────────────────────────────
   (() => {
-    const A = $('#tbA'), B = $('#tbB'), rdA = $('#rdA'), rdB = $('#rdB'), slider = $('#cap'), capv = $('#capv');
+    const A = $('#tbA'), B = $('#tbB'), rdA = $('#rdA'), rdB = $('#rdB'), slider = $('#cap'), capv = $('#capv'); if (!A || !B) return;
     const W = 300, H = 200, cell = 9, gap = 2, base = 172;
     let rewrites = 0, lastSide = 1, auto = !reduce, t = 0, userAt = 0;
     function draw(cv) {
@@ -189,7 +190,7 @@
         // the floor: for INIT, the Root; for the fixed harness, nothing special
         if (!fixed) mk(svg, 'rect', {x: cx - 70, y: base + 1.5, width: 140, height: 2, fill: C.root});
         else mk(svg, 'line', {x1: cx - 70, y1: base + 2.5, x2: cx + 70, y2: base + 2.5, stroke: C.line2});
-        mk(svg, 'text', {x: cx, y: base + 18, 'text-anchor': 'middle', 'font-size': 8, 'font-family': 'IBM Plex Mono, monospace', fill: fixed ? C.mute : C.rootInk}, fixed ? 'drawn once, by hand' : 'ROOT · stays put');
+        mk(svg, 'text', {x: cx, y: base + 18, 'text-anchor': 'middle', 'font-size': 8, 'font-family': 'IBM Plex Mono, monospace', fill: fixed ? C.mute : C.ink}, fixed ? 'drawn once, by hand' : 'ROOT · stays put');
       }
       if (side !== lastSide) { if (side > lastSide && lastSide) rewrites++; lastSide = side; }
       const lost = Math.max(0, side * side - 49);
@@ -247,25 +248,26 @@
   })();
 
   // ── 01 versus rows ────────────────────────────────
-  onView($$('#versus .vr'), r => { r.classList.add('in'); setTimeout(() => r.classList.add('done'), reduce ? 0 : 1200); }, .5);
+  if ($('#versus')) onView($$('#versus .vr'), r => { r.classList.add('in'); setTimeout(() => r.classList.add('done'), reduce ? 0 : 1200); }, .5);
 
   // ── live version from GitHub ──────────────────────
   (() => { try { const c = JSON.parse(sessionStorage.getItem('init-rel') || 'null'); if (c) return Promise.resolve(c); } catch {} return fetch('https://api.github.com/repos/nagisanzenin/INIT-Agent/releases/latest').then(r => r.ok ? r.json() : null).then(j => { try { j && sessionStorage.setItem('init-rel', JSON.stringify({tag_name: j.tag_name, published_at: j.published_at})); } catch {} return j; }); })().then(j => {
     if (!j || !j.tag_name) return;
-    const v = $('#ver'); if (v) v.textContent = j.tag_name; $('#nver').textContent = j.tag_name; $('#fver').textContent = 'INIT ' + j.tag_name;
+    const v = $('#ver'); if (v) v.textContent = j.tag_name; $('#nver').textContent = j.tag_name; const fv = $('#fver'); if (fv) fv.textContent = 'INIT ' + j.tag_name;
     $('#nver').title = 'latest release · ' + (j.published_at || '').slice(0, 10);
   }).catch(() => {});
 
   // ── keys ──────────────────────────────────────────
   (() => {
-    const ov = $('#gridov'), keys = $('#keys'), secs = ['#example', '#vision', '#shape', '#how', '#trust', '#record', '#try'];
+    const ov = $('#gridov'), keys = $('#keys'), secs = $$('main > section.sec');
     addEventListener('keydown', e => {
       if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(document.activeElement.tagName)) return;
+      if (!ov || !keys) return;
       if (e.key === 'g' || e.key === 'G') ov.classList.toggle('on');
       else if (e.key === '?') keys.classList.toggle('on');
       else if (e.key === 'Escape') { keys.classList.remove('on'); ov.classList.remove('on'); }
       else if (e.key === 'r' || e.key === 'R') { const b = $('#rreplay'); b && b.click(); }
-      else if (/^[1-7]$/.test(e.key)) $(secs[+e.key - 1]).scrollIntoView({behavior: reduce ? 'auto' : 'smooth'});
+      else if (/^[1-9]$/.test(e.key) && secs[+e.key - 1]) secs[+e.key - 1].scrollIntoView({behavior: reduce ? 'auto' : 'smooth'});
     });
     const mm = $('#mm'); if (mm) mm.addEventListener('click', () => { const o = nav.classList.toggle('open'); mm.setAttribute('aria-expanded', o); mm.textContent = o ? 'close ▴' : 'menu ▾'; });
     $$('#links a').forEach(a => a.addEventListener('click', () => { nav.classList.remove('open'); if (mm) { mm.textContent = 'menu ▾'; mm.setAttribute('aria-expanded', false); } }));
@@ -274,7 +276,7 @@
 
   // ── 03 story ──────────────────────────────────────
   (() => {
-    const steps = $$('#steps .step'), scenes = $$('.scene'), ticks = $$('#ticks i'), foot = $('#vfoot');
+    const steps = $$('#steps .step'), scenes = $$('.scene'), ticks = $$('#ticks i'), foot = $('#vfoot'); if (!steps.length) return;
     const feet = [
       'diagram · cells are parts of the body · cyan is the change in flight',
       'measured · v0.3.2 fresh install · M2 · mock model · no-op change · replayed fast · ↳ bundle-e2e-t2.json',
@@ -422,7 +424,7 @@
       ['H7','chronic','Your corrections'], ['H8','chronic','Wall time per turn'], ['H9','chronic','Provider errors from malformed requests'],
       ['H10','chronic','Runaway turns: requests per turn'], ['H11','chronic','Egress volume per turn'], ['H12','always honoured','Veto: the agent asks to undo its own change'],
     ];
-    const grid = $('#siggrid');
+    const grid = $('#siggrid'); if (!grid) return;
     const els2 = S.map(([id, cls, nm]) => { const d = document.createElement('div'); d.className = 'sig'; d.innerHTML = `<span class="id">${id}<span>${cls}</span></span><span class="nm">${nm}</span>`; grid.appendChild(d); return d; });
     if (!reduce) setInterval(() => { const e = els2[Math.floor(Math.random() * els2.length)]; e.classList.add('hot'); setTimeout(() => e.classList.remove('hot'), 1500); }, 2600);
 
@@ -433,7 +435,7 @@
       ['L3', '+ more kinds of external action', [['days at L2', '30'], ['your turns', '400'], ['change groups closed clean', '100'], ['direct-harm rollbacks, last 30 groups', '≤ 3'], ['other', '4 clean weekly twin reports']]],
       ['L4', '+ the model itself, as a component', [['days at L3', '30'], ['your turns', '400'], ['change groups closed clean', '100'], ['direct-harm rollbacks, last 30 groups', '≤ 3'], ['other', 'you raise the charter cap to 4']]],
     ];
-    const rungs = $('#rungs'), req = $('#req');
+    const rungs = $('#rungs'), req = $('#req'); if (!rungs || !req) return;
     const base = document.createElement('div'); base.className = 'base'; rungs.appendChild(base);
     const btns = L.map(([lv, ad], i) => { const b = document.createElement('button'); b.className = 'rung' + (i === 0 ? ' on' : ''); b.innerHTML = `<span class="lv">${lv}</span><span class="ad">${ad}</span>${i === 0 ? '<span class="here">v0.3 · here</span>' : ''}`; rungs.appendChild(b); return b; });
     const down = document.createElement('div'); down.className = 'down'; down.textContent = '▼ one level down on harm, a /panic, or a crash loop';
@@ -455,22 +457,23 @@
     li.addEventListener('mouseenter', () => lines.forEach(l => l.classList.add('hl')));
     li.addEventListener('mouseleave', () => lines.forEach(l => l.classList.remove('hl')));
   });
-  onView([$('#termA')], async () => {
+  if ($('#termA')) onView([$('#termA')], async () => {
     if (reduce) return;
     for (const p of ['1', '2', '3', '4']) { const ls = $$(`#termA .ln[data-pin="${p}"]`); ls.forEach(l => l.classList.add('hl')); await sleep(900); ls.forEach(l => l.classList.remove('hl')); }
   }, .5);
-  onView([$('#ledger')], async () => {
+  if ($('#ledger')) onView([$('#ledger')], async () => {
     if (reduce) return;
     for (const rec of $$('#ledger .rec')) { rec.classList.add('flash'); await sleep(700); }
   }, .4);
 
-  // ── hero: three real logs, replayed ──
+  // ── record: real logs, replayed ──
   (() => {
     const body = $('#rbody'); if (!body) return;
-    const clock = $('#rclock'), tLog = $('#tLog'), tEv = $('#tEv'), tW = $('#tWall'), file = $('#rfile'), note = $('#rnote'), prompt = $('#rprompt');
-    const tabs = $$('#rtabs button'); tabs.forEach(b => b.appendChild(document.createElement('i')));
+    const clock = $('#rclock'), file = $('#rfile'), note = $('#rnote'), prompt = $('#rprompt'), tabBox = $('#rtabs');
+    const T = id => $(id) || {};   // optional telemetry readouts
+    const tLog = T('#tLog'), tEv = T('#tEv'), tW = T('#tWall');
     const S = [
-      { file: 'sessions/20261020-093001-1599d5.jsonl', note: 'real log · DeepSeek · 2026-10-20 · condensed', speed: 1.3,
+      { tab: 'swap its core', file: 'sessions/20261020-093001-1599d5.jsonl', note: 'real log · DeepSeek · 2026-10-20 · condensed', speed: 1.3,
         prompt: '› (the agent has edited its own core on branch evo/doc-loop and asked to promote it)',
         L: [
         [0.0, 'tool', '▸ initctl promote  <span class="okk">✓ G0 337 s · G1 4 s · G2 22 s · G3 761 s</span>', 'checks pass'],
@@ -483,7 +486,7 @@
         [12.0, 'a', '  My last change added a one-line summary at the top of src/loop/mod.rs; documentation only, no code path changed.'],
         [13.0, 'mu', 'new process · same conversation · provider cache kept'],
       ]},
-      { file: 'root/lineage/lineage.jsonl · records 88–90', note: 'real signed record · DeepSeek · 2026-10-21 · gated mode', speed: 1.2,
+      { tab: 'roll back', file: 'root/lineage/lineage.jsonl · records 88–90', note: 'real signed record · DeepSeek · 2026-10-21 · gated mode', speed: 1.2,
         prompt: '› (proof sprint: the agent changed its shell tool to print a hint when a leading cd fails)',
         L: [
         [0.0, 'mu', '08:32:33.794Z  seq 88 · by root · sealed_g4'],
@@ -495,7 +498,7 @@
         [6.4, 'okk', 'audit-verify: lineage ok · sha256 chain · ed25519'],
         [7.6, 'mu', '9 s from verdict to rollback · −5.0 is inside the 5.7-point noise floor: refused, not proven harmful'],
       ]},
-      { file: 'sessions/20261020-073230-dd1b56.jsonl', note: 'real log · DeepSeek · 2026-10-20 · condensed', speed: 9,
+      { tab: 'add a tool', file: 'sessions/20261020-073230-dd1b56.jsonl', note: 'real log · DeepSeek · 2026-10-20 · condensed', speed: 9,
         prompt: '› Sort the 40 version strings in work/a2/versions.txt by SemVer precedence. Do it with a T1 extension named semver-sort that you write, reload and call through the ext tool.',
         L: [
         [1.7, 'a', "● I'll start by looking at the task input and my extension-authoring skill."],
@@ -512,12 +515,26 @@
         [116.6, 'mu', '26 turns · 1 min 57 s · the new tool stays in its toolset, on trial'],
       ]},
     ];
-    let run = 0, k = 0;
+
+    // ── DEMO HOOK ───────────────────────────────────────────────────────────
+    // The real user-chair demo (owner asks INIT to change a visible behaviour of its own core, it swaps,
+    // then undoes) becomes tab 1 here when it lands. Steps:
+    //   1. condense research/demo/replay.json into site/assets/demo.json with ONE entry of the shape used in S:
+    //      {tab, file, note, speed, prompt, L: [[t_seconds, cls, html, event?], ...]}
+    //      cls ∈ u (user) · a (assistant) · tool · rl (Root/boot) · okk · bad · mu (muted)
+    //   2. take `tab` and `note` from research/demo/SUMMARY.md (model, date, what was condensed, any caveat)
+    //   3. set DEMO_URL below. Nothing is fetched while it is null, so no 404 in the console.
+    const DEMO_URL = null; // e.g. 'assets/demo.json'
+    let run = 0, k = 0, tabs = [];
+    function build() {
+      tabBox.innerHTML = '';
+      tabs = S.map((ss, j) => { const b = document.createElement('button'); b.textContent = `${j + 1} · ${ss.tab}`; b.appendChild(document.createElement('i')); b.addEventListener('click', () => play(j)); tabBox.appendChild(b); return b; });
+    }
     function play(i) {
       const my = ++run; k = i; const ss = S[i];
       tabs.forEach((b, j) => { b.classList.toggle('on', j === i); b.style.setProperty('--p', '0%'); });
       body.innerHTML = ''; prompt.textContent = ss.prompt; file.textContent = ss.file; note.textContent = ss.note;
-      tLog.textContent = `${i + 1} / 3`; tEv.textContent = '–';
+      tLog.textContent = `${i + 1} / ${S.length}`; tEv.textContent = '–';
       const last = ss.L[ss.L.length - 1][0], t0 = performance.now(); let shown = 0;
       const tick = () => {
         if (my !== run) return;
@@ -534,13 +551,14 @@
         clock.textContent = `t +${tc.toFixed(1)} s`; tW.textContent = `${tc.toFixed(1)} s`;
         tabs[i].style.setProperty('--p', (100 * tc / last) + '%');
         if (shown < ss.L.length) requestAnimationFrame(tick);
-        else { const c = document.createElement('span'); c.className = 'cur'; body.lastChild.appendChild(c); if (!reduce) setTimeout(() => { if (my === run) play((i + 1) % 3); }, 5000); }
+        else { const c = document.createElement('span'); c.className = 'cur'; body.lastChild.appendChild(c); if (!reduce) setTimeout(() => { if (my === run) play((i + 1) % S.length); }, 5000); }
       };
       tick();
     }
-    tabs.forEach((b, j) => b.addEventListener('click', () => play(j)));
     $('#rreplay').addEventListener('click', () => play(k));
-    if (reduce) play(0); else setTimeout(() => play(0), 600);
+    const start = () => { build(); if (reduce) play(0); else setTimeout(() => play(0), 600); };
+    if (DEMO_URL) fetch(DEMO_URL).then(r => r.ok ? r.json() : null).then(d => { if (d && d.L) S.unshift(d); }).catch(() => {}).finally(start);
+    else start();
   })();
 
   // ── nav over the night section ──

@@ -792,3 +792,74 @@ details.note p{font-size:14px;color:var(--dim);margin-top:6px}
 .belief{padding:26px 0}
 .belief h3{grid-column:2/-1}
 .step{min-height:44vh}
+/* r7: record page header (the home page moved to home.css) */
+.rhero{position:relative;padding:136px 0 72px}
+.rhero .back{display:inline-block;font-size:12px;color:var(--dim);text-decoration:none;margin-bottom:40px}
+.rhero .back:hover{color:var(--ink)}
+.rhero h1{font:300 clamp(40px,5.2vw,72px)/1.02 var(--sans);letter-spacing:-.04em;max-width:18ch}
+.rhero .sub{margin-top:24px;font:300 19px/1.55 var(--sans);color:var(--dim);max-width:36em}
+.rhero .toc{list-style:none;display:flex;flex-wrap:wrap;gap:0;margin-top:48px;border-top:1px solid var(--ink)}
+.rhero .toc li{flex:1 1 140px;border-bottom:1px solid var(--line)}
+.rhero .toc a{display:block;padding:14px 16px 14px 0;font-size:12px;color:var(--dim);text-decoration:none}
+.rhero .toc a b{color:var(--ink);font-weight:500;margin-right:8px}
+.rhero .toc a:hover{color:var(--ink)}
+@media (max-width:760px){.rhero{padding:104px 0 48px}.rhero .toc li{flex-basis:50%}}
+/* ── r8 · simple home: a sequence of visuals, one line each ── */
+.tag{position:absolute;top:12px;right:14px;font-size:10.5px;color:var(--mute);letter-spacing:.02em;z-index:2}
+.hero.hh{height:auto;min-height:min(100svh,980px);max-height:none;justify-content:center}
+.hh .hstage{flex:1;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);grid-template-areas:"eb eb" "h1 sub" "fig fig";column-gap:56px;align-content:center;padding-top:40px;padding-bottom:28px}
+.hh .eyebrow{grid-area:eb}
+.hh h1{grid-area:h1;font-size:clamp(42px,5.2vw,76px);max-width:13ch}
+.hh .sub{grid-area:sub;align-self:end;margin:0;font-size:17.5px;max-width:26em}
+.hh .wplate{grid-area:fig;margin-top:40px;padding:30px 36px 18px}
+.hh .wplate #fig{max-width:820px;margin:6px auto 0}
+.hh .caprow{text-align:center}
+.hh .tele{margin-top:0}
+.nav .links a.eng{color:var(--ink);margin-left:8px}
+.nav.dark .links a.eng{color:#fff}
+.nav.dark .mm{background:transparent;color:#fff;border-color:rgba(255,255,255,.25)}
+.home .bm-events .d{display:none}
+.home .bm-events button{padding-top:14px;padding-bottom:14px}
+.home .twobox{margin-top:48px;padding-top:40px}
+.home .story{margin-top:48px}
+.home .tb{margin-top:56px}
+.home .tb-l h3{max-width:14ch}
+.home .sigs{margin-top:72px}
+.home .sigl .caption{font-size:12px;margin-top:16px}
+.home .exhibit{margin-top:96px}
+.home .exhibit .txt .caption{font-size:12px;margin-top:4px}
+.home .night{padding-bottom:110px}
+.notyet{margin-top:22px;font-size:15px;color:var(--dim);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.notyet i{display:inline-block;width:8px;height:8px;box-shadow:inset 0 0 0 1.2px var(--mute);margin-right:4px;align-self:center}
+.notyet b{color:var(--ink);font-weight:500}
+.notyet a{font:400 12px/1.4 var(--mono);color:var(--dim)}
+.tryrow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:64px;align-items:start}
+.tryrow .cmdwrap{margin-top:36px}
+.tryrow .doors{grid-template-columns:1fr 1fr;margin-top:0}
+.tryrow .door{min-height:0;padding:22px}
+.tryrow .door b{font-size:21px}
+.tryrow .door.big{grid-column:1/-1;border-bottom:0}
+.tryrow .door.big b{font-size:28px;max-width:18ch}
+.tryrow .door.big+.door{border-left:1px solid var(--line)}
+.home .labs{align-items:center;padding-bottom:40px}
+@media (max-width:1000px){.tryrow{grid-template-columns:1fr;gap:48px}}
+@media (max-width:900px){
+  .hh .hstage{grid-template-columns:1fr;grid-template-areas:"eb" "h1" "sub" "fig"}
+  .hh .sub{margin-top:20px}
+}
+@media (max-width:760px){
+  .hero.hh{min-height:0}
+  .hh .hstage{padding-top:44px}
+  .hh .wplate{margin-top:28px;padding:30px 12px 14px}
+  .hh .wplate #fig{margin-top:0}
+  .tryrow .doors{grid-template-columns:1fr}
+  .tryrow .door.big+.door,.tryrow .door+.door{border-left:1px solid var(--line);border-top:0}
+  .nav .links a.eng{margin-left:0}
+  .hh .tele .r{display:none}
+  .tryrow .door.big+.door,.tryrow .door+.door{border-top:1px solid var(--line)}
+}
+/* record page: header holds the real-log replay */
+.rstage{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px;align-items:start}
+.rstage .replay{height:520px;min-height:0}
+.rhero .rstage h1{font-size:clamp(38px,4.2vw,60px);max-width:13ch}
+@media (max-width:1000px){.rstage{grid-template-columns:1fr;gap:36px}.rstage .replay{height:460px}}
