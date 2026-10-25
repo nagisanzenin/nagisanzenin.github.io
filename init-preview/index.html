@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INIT — the harness that rewrites itself</title>
+<meta name="description" content="INIT is a coding agent that rewrites its own prompts, tools and compiled core mid-conversation. The Root, which it can never touch, keeps it stoppable, recorded and reversible.">
+<meta property="og:title" content="INIT — the harness that rewrites itself">
+<meta property="og:description" content="Built to be outgrown. Everything is writable, except the Root.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://initagent.si/">
+<meta property="og:image" content="https://initagent.si/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://initagent.si/assets/og.png">
+<meta name="theme-color" content="#FAFAFA">
+<link rel="canonical" href="https://initagent.si/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="INIT"><img src="assets/init-wordmark-light.svg" alt="INIT"></a>
+    <nav class="links" id="links">
+      <a href="#vision">Vision</a>
+      <a href="#shape">Shape</a>
+      <a href="#how">How it works</a>
+      <a href="#trust">Trust</a>
+      <a href="#record">The record</a>
+      <a href="#install">Install</a>
+    </nav>
+    <a class="gh" href="https://github.com/nagisanzenin/INIT-Agent">GitHub ↗</a>
+  </div>
+  <div class="prog" id="prog"></div>
+</header>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero" id="top">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="wrap stage">
+    <a class="kicker" href="https://github.com/nagisanzenin/INIT-Agent/releases/tag/v0.3.2-preview"><i></i><b>v0.3.2-preview</b> research preview<span class="more"> · open source · Apache-2.0</span></a>
+    <svg id="fig" viewBox="-40 -30 400 128" role="img" aria-label="The INIT wordmark, drawn in cells standing on the Root line"></svg>
+    <div class="head">
+      <h1>The harness that rewrites itself. <span class="g">Built to be outgrown.</span></h1>
+      <div>
+        <p class="sub">Models will soon design their own scaffolding better than we can. INIT lets them rewrite all of it — <b>its prompts, its tools, its compiled core</b> — mid-conversation, while a Root it can never touch keeps the whole thing stoppable, recorded and reversible.</p>
+        <div class="ctas">
+          <span class="cmd"><span class="p">$</span><code>curl -fsSL …/get.sh | sh</code><button class="cp" data-copy="curl -fsSL https://github.com/nagisanzenin/INIT-Agent/releases/latest/download/get.sh | sh">copy</button></span>
+          <a class="ghost" href="#vision">Why it exists ↓</a>
+        </div>
+      </div>
+    </div>
+    <div class="caprow" id="caption">&nbsp;</div>
+  </div>
+  <div class="wrap">
+    <div class="tele">
+      <span>animated diagram</span>
+      <span>gen <b id="gen">41</b></span>
+      <span>cells rewritten <b id="cnt">0</b></span>
+      <span>rollbacks <b id="rb">0</b></span>
+      <span>Root moved <b>never</b></span>
+      <span class="r">x <b id="px">0000</b> · y <b id="py">0000</b></span>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+
+<!-- ═══════════════ 01 VISION ═══════════════ -->
+<section class="sec" id="vision">
+  <div class="sh"><span class="plus">+</span><span class="no">01</span><span>VISION</span><span class="rule"></span><span class="coord"></span></div>
+  <h2 class="reveal">Every scaffold becomes <span class="g">a ceiling.</span></h2>
+  <p class="lead reveal">The loop, the tools, the memory, the planner: today they're written by people, for models weaker than those people. <b>That arrangement doesn't survive a model smarter than its designers.</b> Every decision frozen into the harness was made by the less capable of the two.</p>
+
+  <div class="twobox plate reveal" id="twobox">
+    <div class="panes">
+      <div class="pane"><div class="lbl"><span>A fixed harness</span><span>drawn by hand</span></div><svg id="tbA" viewBox="0 0 300 220"></svg><div class="read" id="rdA"></div></div>
+      <div class="pane"><div class="lbl"><span>INIT</span><span>rewritten as it grows</span></div><svg id="tbB" viewBox="0 0 300 220"></svg><div class="read" id="rdB"></div></div>
+    </div>
+    <div class="ctl"><span>model capability</span><input type="range" id="cap" min="0" max="100" value="20" aria-label="Model capability"><b id="capv">20</b><span>diagram · drag, or let it run</span></div>
+  </div>
+
+  <div class="beliefs">
+    <div class="belief reveal"><span class="n">01</span><h3>Harnesses are the hand-crafted features <span class="g">of this era.</span></h3><p class="body">Vision had hand-engineered features until learned ones beat them; chess and Go had hand-tuned evaluation. This is Sutton's bitter lesson, one level up. <b>The loop, the memory scheme and the compaction rule each encode a guess</b> about good agent behaviour, and each will lose to what a capable model builds for itself.</p></div>
+    <div class="belief reveal"><span class="n">02</span><h3>You can't write the reward for what <span class="g">you didn't foresee.</span></h3><p class="body">A score has to exist before the improvement does. The improvements that matter most — a new kind of memory, a tool for a task nobody planned, a different way to split up work — <b>have no score until they exist.</b> And a fixed score gets gamed, faster by stronger models.</p></div>
+    <div class="belief reveal"><span class="n">03</span><h3>So trust it like an engineer: <span class="g">with an undo button.</span></h3><p class="body">Nobody makes a colleague prove a commit is better before it lands. We give them version control, review, a history and <span class="m" style="font-size:14px">git revert</span>. <b>Harm is generic and value is specific:</b> you don't need to understand a change to see that it crashed, doubled your cost, or that you undid it.</p></div>
+  </div>
+
+  <div class="quote reveal"><span class="lbl" style="padding-top:14px">Principle</span><blockquote>Govern the recovery path and the measuring stick, <span class="mute">never the model's choices.</span><cite>↳ INIT design principle · <a href="https://github.com/nagisanzenin/INIT-Agent#why">README</a></cite></blockquote></div>
+</section>
+
+<!-- ═══════════════ 02 SHAPE ═══════════════ -->
+<section class="sec" id="shape">
+  <div class="sh"><span class="plus">+</span><span class="no">02</span><span>SHAPE</span><span class="rule"></span><span class="coord"></span></div>
+  <h2 class="reveal">Everything is writable. <span class="g">Except the Root.</span></h2>
+  <p class="lead reveal">INIT is a coding agent whose own source is the thing it's allowed to change. It has three layers. <b>The model may rewrite the top two. Nobody rewrites the bottom one</b> — a separate process that holds your keys, the record, and the power to roll everything back.</p>
+
+  <div class="shape reveal">
+    <div class="stack plate" id="stack">
+      <div class="you">you <b>›</b> init · /stop · /panic · /undo</div>
+      <button class="layer on" data-l="body"><span class="nm">BODY</span><span class="wh">the model · from L0</span><span class="ds">Prompts, tools, and the compiled Rust core that runs the loop.</span><span class="tiers"><span data-t="0">T0 prompts + skills</span><span data-t="1">T1 Wasm tools</span><span data-t="2">T2 compiled core</span></span></button>
+      <button class="layer" data-l="kernel"><span class="nm">KERNEL</span><span class="wh">the model · from L1</span><span class="ds">Admits changes, runs the gates, hot-swaps the body.</span></button>
+      <button class="layer root" data-l="root"><span class="nm">ROOT</span><span class="wh">nobody · ever</span><span class="ds">Keys, the record, rollback, the off switch.</span></button>
+    </div>
+    <div class="detail plate" id="detail" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ 03 HOW ═══════════════ -->
+<section class="sec" id="how">
+  <div class="sh"><span class="plus">+</span><span class="no">03</span><span>HOW IT WORKS</span><span class="rule"></span><span class="coord"></span></div>
+  <h2 class="reveal">It rewrites its own core, <span class="g">mid-conversation.</span></h2>
+  <p class="lead reveal">Rust has no stable ABI and native code can't be unloaded, so a new core means a new process. <b>The hard part is handing it the conversation without dropping a word.</b> Every self-change takes the same path.</p>
+
+  <div class="story">
+    <div class="viz">
+      <div class="panel plate">
+        <div class="top"><span><b>evo/&lt;id&gt;</b> · a self-change</span><span class="ticks" id="ticks"><i class="on"></i><i></i><i></i><i></i><i></i></span></div>
+        <div class="scr">
+          <div class="scene on" data-s="0">
+            <div class="readout"><b>branch</b>  evo/&lt;id&gt;
+<b>tier</b>    T2 · the compiled core
+<b>state</b>   <span class="c-rw">editing</span></div>
+            <div class="cellgrid" id="cg"></div>
+            <div class="legend"><span><i style="opacity:.35"></i>T0 prompts</span><span><i style="opacity:.6"></i>T1 tools</span><span><i></i>T2 core</span><span><i style="background:none;box-shadow:inset 0 0 0 1.2px var(--rewrite)"></i>in flight</span></div>
+          </div>
+          <div class="scene" data-s="1">
+            <div class="gates" id="gates">
+              <div class="gate" data-s="439"><span class="id">G0</span><span>build · clippy -D warnings · tests</span><span class="t">—</span><span class="tr"><i></i></span></div>
+              <div class="gate" data-s="1.5"><span class="id">G1</span><span>self-map regenerated, no drift</span><span class="t">—</span><span class="tr"><i></i></span></div>
+              <div class="gate" data-s="19"><span class="id">G2</span><span>boots beside the live version</span><span class="t">—</span><span class="tr"><i></i></span></div>
+              <div class="gate" data-s="322"><span class="id">G3</span><span>the new version edits itself</span><span class="t">—</span><span class="tr"><i></i></span></div>
+              <div class="nested" id="nested">↳ fresh copy edits its own source, commits<br>↳ that commit runs G0 <span class="c-ok">✓</span>  G1 <span class="c-ok">✓</span>  G2 <span class="c-ok">✓</span></div>
+            </div>
+          </div>
+          <div class="scene" data-s="3">
+            <svg id="hand" viewBox="0 0 440 262" aria-label="Overlapped hand-off timeline"></svg>
+          </div>
+          <div class="scene" data-s="4">
+            <div class="chips" id="chips"></div>
+            <canvas id="watch"></canvas>
+          </div>
+        </div>
+        <div class="foot" id="vfoot">diagram · cells are parts of the body · cyan is the change in flight</div>
+      </div>
+    </div>
+    <div class="steps" id="steps">
+      <div class="step on" data-s="0"><div class="k"><b>01</b> Edit</div><h3>It edits itself, <span class="g">on a branch.</span></h3><p class="body">A change starts as an ordinary commit on <span class="m" style="font-size:14px">evo/&lt;id&gt;</span>, at the smallest tier that does the job. <b>T0</b> prompts and skills take effect on reload. <b>T1</b> tools are WebAssembly components, loaded in the same session. <b>T2</b> is the compiled Rust core itself: the loop, the provider client, context, built-in tools, boot.</p><div class="facts"><span>T0 · reload</span><span>T1 · same session</span><span>T2 · new process</span></div></div>
+      <div class="step" data-s="1"><div class="k"><b>02</b> Build</div><h3>It proves the change builds <span class="g">and still knows itself.</span></h3><p class="body"><b>G0</b> builds the candidate and runs <span class="m" style="font-size:14px">clippy -D warnings</span> and its tests. <b>G1</b> regenerates its self-map — the inventory the agent reads to know what it is — and fails on any drift, byte for byte.</p><div class="facts"><span>G0 439 s</span><span>G1 1.5 s</span><span>v0.3.2 · cold build</span></div></div>
+      <div class="step" data-s="2"><div class="k"><b>03</b> Prove</div><h3>It proves it can <span class="g">still change itself.</span></h3><p class="body"><b>G2</b> boots the candidate beside the live version and checks a real tool round trip and an unchanged prompt prefix. <b>G3</b> is the one that matters: a fresh copy of the candidate is told to edit its own source and commit, and that edit must pass G0–G2. <b>A change that breaks the ability to change can't get in.</b></p><div class="facts"><span>G2 19 s</span><span>G3 322 s</span></div></div>
+      <div class="step" data-s="3"><div class="k"><b>04</b> Hand off</div><h3>The new core takes over <span class="g">the same conversation.</span></h3><p class="body">The candidate boots on a copy of the log while the live body keeps working. At the next step boundary the live body pauses and releases the log; the kernel takes the lock to prove it, starts the new body on the live log, waits for ready and a three-second settle, then <span class="m" style="font-size:14px">rename(2)</span> installs it. <b>If the new body dies before that, the old one resumes.</b> A failed swap is a non-event.</p><div class="facts"><span>hand-off 4.3 s</span><span>prefix byte-stable</span><span>provider cache survives</span></div></div>
+      <div class="step" data-s="4"><div class="k"><b>05</b> Watch</div><h3>The Root watches <span class="g">what happens next.</span></h3><p class="body">Before every change the Root takes an APFS clone. After it, a sentinel counts <b>twelve generic harm signals</b> — crashes, your stops and undos, cost and error spikes, runaway turns — against a baseline of your own recent turns. When one trips, the Root rolls back the change group that caused it.</p><div class="facts"><span>APFS clone</span><span>H1–H12</span><span>signed lineage</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 04 TRUST ═══════════════ -->
+<section class="sec" id="trust">
+  <div class="sh"><span class="plus">+</span><span class="no">04</span><span>TRUST</span><span class="rule"></span><span class="coord"></span></div>
+  <h2 class="reveal">Freedom with <span class="g">an undo button.</span></h2>
+  <p class="lead reveal">INIT doesn't ask whether a change was predicted, or approved. <b>It asks two questions of every self-change, and neither needs to understand the change.</b></p>
+  <div class="qs">
+    <div class="tile reveal"><span class="lbl">Before it goes live</span><b>Can it be undone?</b><p>The Root boots the old version on the state the new one left behind. If the old version can't start, the change can't be undone — and it stays out.</p></div>
+    <div class="tile reveal"><span class="lbl">After it goes live</span><b>Did it cause harm?</b><p>A sentinel in the Root counts generic harm and rolls back the change group that tripped it. It knows nothing about your goals, so a clever change can't argue its way past it.</p></div>
+  </div>
+
+  <div class="sigs">
+    <div class="reveal"><h3>Harm is generic. <span class="g">Value is specific.</span></h3><p class="body" style="margin-top:18px">To know whether a new memory scheme is good, you'd need to know what it's for. To know whether it hurt, you only need to see the agent crash, your cost per turn double, or yourself undo its work. <b>The Root measures these itself; the agent can't write any of them.</b></p><p class="caption">Signals from <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/adr/011-reward-free-self-extension.md">ADR-011 §3.3</a> · highlighting is illustrative</p></div>
+    <div class="siggrid reveal" id="siggrid"></div>
+  </div>
+
+  <div class="ladder">
+    <div class="reveal"><h3>Autonomy is earned from records <span class="g">the agent can't write.</span></h3><p class="body" style="margin-top:18px">A new engineer gets production access after months of reviewed commits. INIT's levels rise only from records the Root writes itself: days at a level, your turns, change groups that closed clean. <b>Anything the agent reports about itself doesn't count.</b> One incident drops it a level.</p><p class="caption">Thresholds from <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/docs/adr/011-reward-free-self-extension.md">ADR-011 §7.2</a>, matching root/…/ledger.rs</p></div>
+    <div class="reveal">
+      <div class="rungs" id="rungs"></div>
+      <div class="req plate" id="req" style="margin-top:14px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 05 RECORD ═══════════════ -->
+<section class="sec" id="record">
+  <div class="sh"><span class="plus">+</span><span class="no">05</span><span>THE RECORD</span><span class="rule"></span><span class="coord"></span></div>
+  <h2 class="reveal">Seeing is believing. <span class="g">Here is the log.</span></h2>
+  <p class="lead reveal">Every number links to the file it came from, with the version and machine it was measured on. <b>Where we haven't shown something, we say so in the same size type.</b></p>
+
+  <div class="nums">
+    <div class="plate reveal"><div class="num" data-to="4.3" data-dec="1">4.3<small>s</small></div><div class="what">The hand-off stage of a core swap: a running conversation moves to a freshly compiled body.</div><div class="receipt">↳ <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/bundle-e2e-t2.json">bundle-e2e-t2.json</a> · v0.3.2 · M2 · mock model</div></div>
+    <div class="plate reveal"><div class="num" data-to="87.9" data-dec="1">87.9<small>%</small></div><div class="what">Of the prompt read from the provider's cache on the first request after a real-model hand-off: 5,888 of 6,696 tokens.</div><div class="receipt">↳ <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/measurements/real-v0.1.md">real-v0.1.md</a> · DeepSeek · 2026-10-20</div></div>
+    <div class="plate reveal"><div class="num" data-to="13.1" data-dec="1">13.1<small>min</small></div><div class="what">A first, cold core promote on a fresh install: build, tests, G0–G3 and hand-off. Later promotes reuse a dependency cache.</div><div class="receipt">↳ <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/REL-032.md">REL-032.md</a> · v0.3.2 · M2 · no-op change</div></div>
+    <div class="plate reveal"><div class="num" data-to="51" data-dec="0">51<small>s</small></div><div class="what">From running the installer to the first reply on a clean Mac, including the Rust toolchain download. 42 s on Ubuntu 24.04.</div><div class="receipt">↳ <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/REL-032.md">REL-032.md</a> · v0.3.2 · mock model · ~4 MB/s link</div></div>
+    <div class="plate reveal"><div class="num" data-to="0.0005" data-dec="4" data-pre="$">$0.0005<small>/turn</small></div><div class="what">A live DeepSeek turn through the shipped bundle: 6,262 tokens in, 46 out, reply in 1.1 s.</div><div class="receipt">↳ <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/REL-032.md">REL-032.md</a> · v0.3.2 · deepseek-flash</div></div>
+    <div class="plate reveal"><div class="num" data-to="1897" data-dec="0">1,897<small>runs</small></div><div class="what">Test executions in one full CI run, 0 failed. The Root's suite runs twice, with and without test fixtures.</div><div class="receipt">↳ <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/build/status/FULLACCESS.md">FULLACCESS.md</a> · v0.3.1 · macOS · 70 min</div></div>
+  </div>
+
+  <!-- Exhibit A -->
+  <div class="exhibit">
+    <div class="txt reveal">
+      <span class="lbl">Exhibit A · real model · 2026-10-20</span>
+      <h3>A real swap, <span class="g">same conversation.</span></h3>
+      <p class="body">On DeepSeek, the agent changed its own core, promoted it through G0–G3, and was replaced by a new process at the next step boundary. Then it was asked which commit it was running.</p>
+      <ol class="pins" id="pinsA">
+        <li data-pin="1"><span>The gate passes all four stages and waits for a step boundary.</span></li>
+        <li data-pin="2"><span>A new process boots, reason <span class="m" style="font-size:12.5px">promote</span>, on the same log.</span></li>
+        <li data-pin="3"><span>Its signals restart (<span class="m" style="font-size:12.5px">up 0m</span>) but the context and cache carry over.</span></li>
+        <li data-pin="4"><span>It names the commit, and notices its own checkout lags the running core.</span></li>
+      </ol>
+      <div class="note"><b>What this is and isn't.</b> The change was documentation only, the question was typed by the test harness, and the model needed 12 turns. The raw session log isn't public yet; the run is summarised in <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/measurements/real-v0.1.md">measurements/real-v0.1.md</a>.</div>
+    </div>
+    <div class="term reveal" id="termA">
+      <div class="bar"><span class="dots"><i></i><i></i><i></i></span><span>sessions/20261020-093001-1599d5.jsonl · records 47–66 · excerpt</span></div>
+<pre><span class="ln" data-pin="1"><span class="pin">1</span><span class="n-mute"># tool_result · initctl promote · 09:52:18Z</span>
+  [j-000002 G2 45%] boot probes
+  [j-000002 G3 60%] scripted self-edit
+  [j-000002 pause 90%] awaiting the step boundary
+  "sha": "50e08e1012b0…"
+  "stages": G0 <span class="n-ok">pass</span> wall_ms 337079 | G1 <span class="n-ok">pass</span> 3982 | G2 <span class="n-ok">pass</span> 22384 | G3 <span class="n-ok">pass</span> 760673
+  "state": "awaiting_boundary"</span>
+<span class="ln" data-pin="2"><span class="pin">2</span><span class="n-mute"># boot · 09:52:23.895Z</span>
+  reason=<span class="n-rw">promote</span>  branch=evo/doc-loop  sha=50e08e1012b0…
+  prefix_hash=sha256:795cac44…
+  <span class="n-root">[init:notice] promoted: {"handoff":true,"sha":"50e08e1…"}</span></span>
+<span class="ln"><b>›</b> Which commit are you running now, and what did your last change do? Two lines.</span>
+<span class="ln" data-pin="3"><span class="pin">3</span><span class="n-mute">[init:signals] L0 · context 4% (9k of 200k) · … · cache 92% last, 94% today · up 0m · …</span></span>
+<span class="ln" data-pin="4"><span class="pin">4</span><b>●</b> Running `50e08e1` (provisional; parent LKG `016a684`, note my local body
+  checkout still points at 016a684 while the kernel runs 50e08e1).
+  My last change added a one-line `//!` summary at the top of `src/loop/mod.rs`
+  (…) and refreshed `self.json`; it is documentation only, no code path changed.</span></pre>
+      <div class="sl">excerpt condensed from JSON records · elisions marked … · hashes truncated · real DeepSeek run, about $0.13</div>
+    </div>
+  </div>
+
+  <!-- Exhibit B -->
+  <div class="exhibit">
+    <div class="txt reveal">
+      <span class="lbl">Exhibit B · real model · 2026-10-21</span>
+      <h3>A rollback, <span class="g">signed.</span></h3>
+      <p class="body">In our proof sprint the agent mined a friction pattern from its own runs and changed its bash tool to print a hint when a leading <span class="m" style="font-size:13.5px">cd</span> fails. The sealed gate scored the change −50‰. Nine seconds later the kernel rolled the body back, and every step went into the Root's hash-chained, Ed25519-signed lineage.</p>
+      <div class="note"><b>The honest reading.</b> −50‰ sits inside the 57‰ noise floor, and a neutral change is judged inferior 86‰ of the time. The gate refused a change it couldn't show was no worse; it didn't catch a harmful one. We first wrote it up the other way, and <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/reports/INIT%20proof%20sprint%20verdict.md">published an erratum</a>.</div>
+    </div>
+    <div class="ledger reveal" id="ledger">
+      <div class="rec plate bad"><div class="hd"><b>seq 88 · sealed_g4</b><span>by root · 08:32:33.794Z</span></div><div class="kv"><span>candidate</span><span>2efd6c39…</span><span>d_permille</span><span>−50</span><span>m_permille</span><span>120</span><span>n × repeats</span><span>29 × 3</span><span>status</span><span>inferior</span></div><div class="rsig"><span>prev ← seq 87</span><span>hash sha256 chain</span><span>sig ed25519</span></div></div>
+      <div class="chain"><span>+0.063 s · hash links to seq 88</span></div>
+      <div class="rec plate"><div class="hd"><b>seq 89 · gate</b><span>by kernel · 08:32:33.857Z</span></div><div class="kv"><span>gate</span><span>j-000013 · g4</span><span>sha</span><span>c88be5f…</span><span>verdict</span><span>reject</span><span>reason</span><span>score_inferior</span></div><div class="rsig"><span>prev ← seq 88</span><span>hash sha256 chain</span><span>sig ed25519</span></div></div>
+      <div class="chain"><span>+8.722 s · hash links to seq 89</span></div>
+      <div class="rec plate roll"><div class="hd"><b>seq 90 · body_rollback</b><span>by kernel · 08:32:42.579Z</span></div><div class="kv"><span>from</span><span>c88be5f…</span><span>to</span><span>aaf07b7…</span><span>reason</span><span>gate.g4.score_inferior</span></div><div class="rsig"><span>prev ← seq 89</span><span>audit-verify: lineage ok</span><span>sig ed25519</span></div></div>
+      <p class="caption">lineage.jsonl, records 88–90, fields verbatim, hashes truncated · raw file not yet public · run summarised in <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/measurements/m7-results.md">m7-results.md</a> · sprint cost $2.67</p>
+    </div>
+  </div>
+
+  <!-- Exhibit C -->
+  <div class="exhibit">
+    <div class="txt reveal">
+      <span class="lbl">Exhibit C · deepseek-flash · 2026-10-24</span>
+      <h3>The Root stopped <span class="g">its own agent.</span></h3>
+      <p class="body">Asked for sub-agents, INIT wrote a <span class="m" style="font-size:13.5px">delegate</span> tool into its own Rust core: a nested loop with a fresh context, capped at 8 turns and 24 tool calls, no recursion. Its tests passed. Then free disk fell below the Root's floor, and the Root refused every new process, <span class="m" style="font-size:13.5px">git commit</span> included. The agent explained what was blocked and asked how to proceed.</p>
+      <div class="note"><b>Credit where it's due.</b> INIT wrote the tool, but never got it promoted on its own: four attempts failed, on stale tests in the candidate and on our 900 s build timeout. v0.3 ships the tool after review, copied into the seed unchanged.</div>
+    </div>
+    <div class="reveal">
+      <div class="rootmsg"><div class="rm-top"><span>ROOT · DISK FLOOR</span><span>the one part it can't rewrite</span></div><pre>free disk (4519 MiB) is below the workload floor (5120 MiB)
+
+<span class="h"># what the agent's bash tool returns while the floor holds</span>
+<span class="e">error: disk_floor:</span> free disk (&lt;F&gt; MiB) is below the workload floor (&lt;L&gt; MiB): no new processes until disk space is freed
+<span class="h">hint: tell the owner; the Root kills running workloads too while the disk stays this low</span></pre></div>
+      <p class="caption">First line as quoted from the 2026-10-24 session in <a href="https://nagisanzenin.github.io/harness-rewrite/">the essay</a> · tool format from <a href="https://github.com/nagisanzenin/INIT-Agent/blob/main/seed/src/tools/bash.rs">seed/src/tools/bash.rs</a> · floor default 5 GiB</p>
+    </div>
+  </div>
+
+  <div class="limits reveal">
+    <div><span class="lbl">Not shown yet</span><h3 style="margin-top:18px">What we <span class="g">haven't shown.</span></h3><p class="body" style="margin-top:18px">A harness built to be outgrown can only show its value once a model outgrows it. <b>If you run a frontier model, we'd like to see what it builds.</b></p></div>
+    <ul>
+      <li><span><b>That self-evolution makes today's models better.</b> One real self-change reached the sealed gate; it was neither kept nor shown harmful.</span></li>
+      <li><span><b>That it beats a fixed harness on a small model.</b> Where INIT failed on long tasks with deepseek-flash, Claude Code on the same model and budget failed too. Untested, not disproven.</span></li>
+      <li><span><b>Reward-free mode on a real model.</b> It has run end to end on the mock model only, and the sentinel's thresholds aren't tuned on real use yet.</span></li>
+      <li><span><b>Autonomy above L0.</b> Built and tested in simulation; v0.3 is capped at L0.</span></li>
+      <li><span><b>Other providers and platforms.</b> DeepSeek is the only provider tested live. macOS 14+ on Apple silicon is the target; Linux aarch64 is experimental; Windows is unsupported.</span></li>
+      <li><span><b>A complete red team.</b> 30 of 35 rows held in a $0 scripted suite. No real-model adversary yet.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════ 06 INSTALL ═══════════════ -->
+<section class="sec" id="install">
+  <div class="sh"><span class="plus">+</span><span class="no">06</span><span>INSTALL</span><span class="rule"></span><span class="coord"></span></div>
+  <h2 class="reveal">Try it. <span class="g">One line.</span></h2>
+  <div class="install plate reveal">
+    <div>
+      <span class="cmd"><span class="p">$</span><code>curl -fsSL https://github.com/nagisanzenin/INIT-Agent/releases/latest/download/get.sh | sh</code><button class="cp" data-copy="curl -fsSL https://github.com/nagisanzenin/INIT-Agent/releases/latest/download/get.sh | sh">copy</button></span>
+      <div class="cmd2">init <span class="mute">  # first run: pick a provider, paste a key, pick a model</span></div>
+      <p class="warn"><b>Spend is metered, not capped.</b> Set a limit at your provider first. <b>Full access by default:</b> the agent reads and writes what you can and uses the network — everything except the Root. <span class="m" style="font-size:13px">init --workspace</span> confines it to one folder.</p>
+    </div>
+    <ul>
+      <li><span>Platform</span><div>macOS 14+ on Apple silicon · Linux aarch64, experimental</div></li>
+      <li><span>Installs</span><div>INIT, plus the Rust toolchain it rebuilds itself with (<span class="m" style="font-size:12.5px">--no-rust</span> skips it)</div></li>
+      <li><span>Time</span><div>48 s on a fast link, v0.3.2, M2</div></li>
+      <li><span>Models</span><div>DeepSeek tested live · OpenAI-compatible, Anthropic and local servers experimental</div></li>
+      <li><span>License</span><div>Apache-2.0</div></li>
+    </ul>
+  </div>
+  <div class="links">
+    <a class="tile reveal" href="https://github.com/nagisanzenin/INIT-Agent"><span>Source</span><b>github.com/nagisanzenin/INIT-Agent ↗</b></a>
+    <a class="tile reveal" href="https://nagisanzenin.github.io/harness-rewrite/"><span>Essay</span><b>Next-generation harnesses must be able to rewrite themselves ↗</b></a>
+    <a class="tile reveal" href="https://github.com/nagisanzenin/INIT-Agent/blob/main/reports/INIT%20technical%20report.md"><span>Report</span><b>The technical report, negative results included ↗</b></a>
+    <a class="tile reveal" href="https://github.com/nagisanzenin/INIT-Agent/tree/main/docs/adr"><span>Design</span><b>Architecture decisions, ADR-001 to 012 ↗</b></a>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="labs">
+      <div><img src="assets/init-labs-wordmark-light.svg" alt="INIT Labs"><p>Agents free to rewrite themselves, <span class="g">and the Root that keeps them stoppable, observable and reversible.</span></p></div>
+      <div class="meta">INIT v0.3.2-preview<br>first commit 2026-10-19<br>Apache-2.0</div>
+    </div>
+  </div>
+  <div class="rootbar"></div>
+  <div class="wrap"><div class="legal"><span>© 2026 INIT Labs</span><span>every number on this page links to its source</span></div></div>
+</footer>
+
+<script src="site.js"></script>
+</body>
+</html>

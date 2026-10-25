@@ -1,0 +1,56 @@
+/* INIT brand tokens · v0.2 (draft)
+   Light is the default: white and aluminium grey, ink, one amber line.
+   Night is for terminal captures and the product itself. */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:ital,wdth,wght@0,85..100,100..700;1,85..100,100..700&family=Newsreader:ital,opsz,wght@0,6..72,200..600;1,6..72,200..600&display=swap");
+
+:root {
+  /* surfaces */
+  --bg:       #FAFAFA;  /* ground */
+  --surface:  #FFFFFF;  /* raised plates */
+  --tile:     #F2F2F3;  /* soft tiles */
+  --line:     #E3E3E6;  /* hairlines */
+  --line-2:   #CDCDD2;  /* crosses, ticks, dimension lines */
+
+  /* text */
+  --ink:      #111114;  /* primary text; the Body's cells */
+  --dim:      #6C6C74;  /* secondary text */
+  --mute:     #9B9BA3;  /* labels, metadata, receipts */
+
+  /* the one fixed thing */
+  --root:     #D9961F;  /* Root amber: lines and fills */
+  --root-ink: #A86F0A;  /* Root amber as text */
+
+  /* state: never decoration */
+  --rewrite:  #0E9FB2;  /* a change in flight */
+  --pass:     #1A9A50;  /* a gate passed, a swap landed */
+  --harm:     #E0464B;  /* harm, refusal, rollback trigger */
+
+  /* night: terminal captures, the TUI */
+  --night:    #0D0E11;
+  --night-2:  #15171B;
+  --night-ln: #24272D;
+  --bone:     #D9DEE4;
+  --n-dim:    #8A96A3;
+  --n-mute:   #5C6773;
+  --n-root:   #E6B450;
+  --n-rewrite:#56D4DD;
+  --n-pass:   #3FB950;
+  --n-harm:   #F85149;
+
+  /* type */
+  --sans:  "IBM Plex Sans", -apple-system, "Helvetica Neue", sans-serif;  /* the voice */
+  --mono:  "IBM Plex Mono", ui-monospace, Menlo, monospace;               /* the record */
+  --serif: "Newsreader", Georgia, serif;                                  /* optional: long-form essays */
+
+  /* the cell: every measure is a multiple of it */
+  --cell: 8px;
+  --s1: 8px;  --s2: 16px; --s3: 24px; --s4: 32px;
+  --s6: 48px; --s8: 64px; --s12: 96px; --s16: 128px;
+  --r-tile: 22px;   /* soft tiles only; plates and cells are square */
+
+  /* motion */
+  --t-flip: 140ms;    /* a cell changes state */
+  --t-settle: 600ms;  /* a swap settles */
+  --ease: cubic-bezier(.2, 0, 0, 1);
+}
